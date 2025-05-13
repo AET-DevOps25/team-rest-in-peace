@@ -1,0 +1,59 @@
+enum publisher_type {
+  BT
+  BR
+  BV
+}
+
+enum party {
+  CDU_CSU
+  AFD
+  FDP
+  GRUENE
+  SPD
+  LINKE
+  BSW
+  NO_PARTY
+}
+
+enum speech_chunk_type {
+  SPEECH
+  COMMENT
+}
+
+table plenary_protocol {
+  id integer [pk]
+  election_period integer
+  document_number integer
+  publisher publisher_type
+}
+
+table speech {
+  id integer [pk]
+  plenary_protocol_id integer [ref: > plenary_protocol.id]
+  speaker_id integer [ref: > person.speaker_id]
+  text_plain text
+  text_embedding vector
+}
+
+table speech_chunk {
+  id integer [pk]
+  speech_id integer [ref: > speech.id, not null]
+  type speech_chunk_type [not null]
+  text text [not null]
+}
+
+table person {
+  id integer [pk]
+  speaker_id integer
+  first_name varchar [not null]
+  last_name varchar [not null]
+  party party [not null]
+}
+
+table role {
+  id integer [pk]
+  person_id integer [ref: > person.id, not null]
+  function varchar [not null]
+  ressort varchar [not null]
+  election_period list [not null]
+}
