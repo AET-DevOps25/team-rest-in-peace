@@ -1,0 +1,60 @@
+classDiagram
+    class PlenaryProtocol {
+        +Integer id
+        +Integer legislaturePeriod
+        +Date date
+        +String title
+        +String summary
+        +String xmlText
+    }
+    
+    class Speech {
+        +Integer id
+        +String textPlain
+        +String summary
+        +SpeechType type
+    }
+    
+    class SpeechChunk {
+        +Integer id
+        +String text
+        +Vector textEmbedding
+    }
+    
+    class Politician {
+        +Integer id
+        +String firstName
+        +String lastName
+        +String function
+        +String ressort
+    }
+    
+    class Party {
+        +Integer id
+        +String name
+        +String abbreviation
+    }
+    
+    class User {
+        +Integer id
+        +String email
+    }
+    
+    class Subscription {
+        +Integer id
+        +SubscriptionType type
+        +String keyword
+    }
+    
+    class Notification {
+        +Integer id
+        +Date timestamp
+        +String content
+    }
+    
+    PlenaryProtocol "1" -- "n" Speech : contains
+    Speech "1" -- "n" SpeechChunk : divided into
+    Politician "1" -- "n" Speech : delivers
+    Politician "n" -- "1" Party : belongs to
+    User "1" -- "n" Subscription : manages
+    Subscription "1" -- "n" Notification : triggers
