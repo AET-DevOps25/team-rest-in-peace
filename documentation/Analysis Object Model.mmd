@@ -49,6 +49,10 @@ classDiagram
         +getNotifications()
     }
 
+    class NotificationManager {
+        +addPlenaryProtocol()
+    }
+
     class Subscription {
         +Integer id
         +SubscriptionType type
@@ -67,6 +71,8 @@ classDiagram
     Politician "1" -- "n" Speech : delivers
     Politician "n" -- "1" Party : belongs to
     User "1" -- "n" Subscription : manages
-    Subscription "1" -- "n" Notification : triggers
-    Subscription "n" -- "0..1" Politician : follows
-    Subscription "n" -- "0..1" Party : follows
+    NotificationManager "1" -- "n" PlenaryProtocol : watches
+    NotificationManager "1" -- "n" Subscription : manages
+    NotificationManager "1" -- "n" Notification : triggers
+
+
