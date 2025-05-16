@@ -48,12 +48,14 @@ table person {
   first_name varchar [not null]
   last_name varchar [not null]
   party party [not null]
+  // election period is missing
 }
-
+/*
 table role {
   id integer [pk]
   person_id integer [ref: > person.id, not null]
   function varchar [not null]
   ressort varchar [not null]
-  election_period list [not null]
+  // election period is missing
 }
+*/
