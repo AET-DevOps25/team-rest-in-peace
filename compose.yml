@@ -1,0 +1,10 @@
+services:
+  db:
+    build: database
+    container_name: db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: welovedevops
