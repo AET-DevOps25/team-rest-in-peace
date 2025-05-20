@@ -8,3 +8,9 @@ services:
       POSTGRES_DB: db
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: welovedevops
+
+  api:
+    build: nlp
+    container_name: nlp
+    ports:
+      - "8000:8000"
