@@ -18,6 +18,7 @@ CREATE TABLE "speech" (
 CREATE TABLE "speech_chunk" (
   "id" integer PRIMARY KEY,
   "speech_id" integer NOT NULL,
+  "index" integer NOT NULL,
   "type" varchar NOT NULL,
   "text" text NOT NULL
 );
