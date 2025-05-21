@@ -35,3 +35,13 @@ ALTER TABLE "speech" ADD FOREIGN KEY ("plenary_protocol_id") REFERENCES "plenary
 ALTER TABLE "speech" ADD FOREIGN KEY ("speaker_id") REFERENCES "person" ("speaker_id");
 
 ALTER TABLE "speech_chunk" ADD FOREIGN KEY ("speech_id") REFERENCES "speech" ("id");
+
+CREATE USER "data-fetching-service" WITH PASSWORD 'welovedevops';
+
+CREATE USER "nlp-service" WITH PASSWORD 'welovedevops';
+
+CREATE USER "notfication-service" WITH PASSWORD 'welovedevops';
+
+CREATE USER "browsing-service" WITH PASSWORD 'welovedevops';
+
+GRANT SELECT, INSERT, UPDATE ON "plenary_protocol", "speech", "speech_chunk", "person" TO "data-fetching-service";
