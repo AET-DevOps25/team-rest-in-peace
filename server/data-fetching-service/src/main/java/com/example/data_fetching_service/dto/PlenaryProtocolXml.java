@@ -129,7 +129,7 @@ public class PlenaryProtocolXml {
         }
 
         public Redner getRedner() {
-            return null;
+            return redner;
         }
 
         public void setRedner(Redner redner) {

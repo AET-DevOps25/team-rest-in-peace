@@ -51,15 +51,34 @@ public class ApiService {
     private ObjectMapper objectMapper;
 
 
-    public void fetchAndStoreData() {
+    public void fetchAndStoreData(
+            String aktualisiertStart, String aktualisiertEnd,
+            String datumStart, String datumEnd,
+            String dokumentnummer, String id,
+            String vorgangstyp, String vorgangstypNotation,
+            String wahlperiode, String zuordnung,
+            String cursor, String format) {
         try {
             // Fetch metadata from the Bundestag API
-            List<BundestagApiResponse.Document> documents = fetchPlenaryProtocolMetaDataList();
+            List<BundestagApiResponse.Document> documents = fetchPlenaryProtocolMetaDataList(
+                    aktualisiertStart, aktualisiertEnd,
+                    datumStart, datumEnd,
+                    dokumentnummer, id,
+                    vorgangstyp, vorgangstypNotation,
+                    wahlperiode, zuordnung,
+                    cursor, format
+            );
             logger.info("Fetched {} documents from the Bundestag API", documents.size());
 
             // Process each document
             for (BundestagApiResponse.Document document : documents) {
                 try {
+                    int plenaryProtocolId = Integer.parseInt(document.getId());
+                    PlenaryProtocol existingProtocol = plenaryProtocolRepository.findById(plenaryProtocolId).orElse(null);
+                    if (existingProtocol != null) {
+                        logger.info("Skipping document {} because it already exists in the database", document.getId());
+                        break;
+                    }
                     // Extract and store plenary protocol
                     PlenaryProtocol plenaryProtocol = extractAndStorePlenaryProtocol(document);
 
@@ -79,14 +98,57 @@ public class ApiService {
         }
     }
 
-    private List<BundestagApiResponse.Document> fetchPlenaryProtocolMetaDataList() {
+    private List<BundestagApiResponse.Document> fetchPlenaryProtocolMetaDataList(
+            String aktualisiertStart, String aktualisiertEnd,
+            String datumStart, String datumEnd,
+            String dokumentnummer, String id,
+            String vorgangstyp, String vorgangstypNotation,
+            String wahlperiode, String zuordnung,
+            String cursor, String format) {
+
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(baseUrl)
                 .path("/plenarprotokoll")
-                .queryParam("f.dokumentnummer", "20/214")
-                .queryParam("apikey", apiKey)
-                .queryParam("f.wahlperiode", 20)
-                .queryParam("f.zuordnung", "BT");
+                .queryParam("apikey", apiKey);
+
+        // Conditionally add parameters if they are not null or empty
+        if (aktualisiertStart != null && !aktualisiertStart.isEmpty()) {
+            builder.queryParam("f.aktualisiert.start", aktualisiertStart);
+        }
+        if (aktualisiertEnd != null && !aktualisiertEnd.isEmpty()) {
+            builder.queryParam("f.aktualisiert.end", aktualisiertEnd);
+        }
+        if (datumStart != null && !datumStart.isEmpty()) {
+            builder.queryParam("f.datum.start", datumStart);
+        }
+        if (datumEnd != null && !datumEnd.isEmpty()) {
+            builder.queryParam("f.datum.end", datumEnd);
+        }
+        if (dokumentnummer != null && !dokumentnummer.isEmpty()) {
+            builder.queryParam("f.dokumentnummer", dokumentnummer);
+        }
+        if (id != null && !id.isEmpty()) {
+            builder.queryParam("f.id", id);
+        }
+        if (vorgangstyp != null && !vorgangstyp.isEmpty()) {
+            builder.queryParam("f.vorgangstyp", vorgangstyp);
+        }
+        if (vorgangstypNotation != null && !vorgangstypNotation.isEmpty()) {
+            builder.queryParam("f.vorgangstyp_notation", vorgangstypNotation);
+        }
+        if (wahlperiode != null && !wahlperiode.isEmpty()) {
+            builder.queryParam("f.wahlperiode", wahlperiode);
+        }
+        if (zuordnung != null && !zuordnung.isEmpty()) {
+            builder.queryParam("f.zuordnung", zuordnung);
+        }
+        if (cursor != null && !cursor.isEmpty()) {
+            builder.queryParam("cursor", cursor);
+        }
+        if (format != null && !format.isEmpty()) {
+            builder.queryParam("format", format);
+        }
+
 
         ResponseEntity<String> response = restTemplate.getForEntity(builder.toUriString(), String.class);
 
@@ -114,7 +176,7 @@ public class ApiService {
 
     private PlenaryProtocol extractAndStorePlenaryProtocol(BundestagApiResponse.Document document) {
         try {
-            Integer id;
+            int id;
             try {
                 id = Integer.parseInt(document.getId());
             } catch (NumberFormatException e) {
@@ -124,7 +186,7 @@ public class ApiService {
 
             Integer electionPeriod = document.getElectionPeriod();
 
-            Integer documentNumber;
+            int documentNumber;
             try {
                 String docNum = document.getDocumentNumber();
                 if (docNum.contains("/")) {
@@ -137,13 +199,6 @@ public class ApiService {
                 throw e;
             }
             String publisher = document.getPublisher();
-            logger.info("Extracting and storing plenary protocol {} for election period {} and document number {} from publisher {}", id, electionPeriod, documentNumber, publisher);
-            Optional<PlenaryProtocol> existingProtocol = plenaryProtocolRepository
-                    .findByElectionPeriodAndDocumentNumberAndPublisher(electionPeriod, documentNumber, publisher);
-
-            if (existingProtocol.isPresent()) {
-                return existingProtocol.get();
-            }
 
             PlenaryProtocol plenaryProtocol = new PlenaryProtocol();
             plenaryProtocol.setId(id);
@@ -171,14 +226,14 @@ public class ApiService {
                     // Create speech
                     Speech speech = new Speech();
                     try {
-                        speech.setId(Integer.parseInt(rede.getId()));
+                        speech.setId(Integer.parseInt(rede.getId().substring(2)));
                     } catch (NumberFormatException e) {
                         // If the ID is not a valid integer, use a hash code as fallback
                         logger.warn("Speech ID is not a valid integer: {}. Using hash code instead.", rede.getId());
                         speech.setId(rede.getId().hashCode());
                     }
                     speech.setPlenaryProtocol(plenaryProtocol);
-                    speech.setSpeaker(speaker);
+                    speech.setPerson(speaker);
 
 //                     Combine all paragraphs to create text_plain
                     String textPlain = rede.getInhalte() != null ?
@@ -206,24 +261,23 @@ public class ApiService {
         }
 
         try {
-            Integer speakerId;
+            Integer id;
             try {
-                speakerId = Integer.parseInt(redner.getId());
+                id = Integer.parseInt(redner.getId());
             } catch (NumberFormatException e) {
                 // If the ID is too large for an Integer or contains non-numeric characters,
                 // use a hash code of the string as a fallback
                 logger.warn("Speaker ID is not a valid integer: {}. Using hash code instead.", redner.getId());
-                speakerId = redner.getId().hashCode();
+                id = Integer.parseInt(redner.getId());
             }
-            Optional<Person> existingPerson = personRepository.findBySpeakerId(speakerId);
+            Optional<Person> existingPerson = personRepository.findById(id);
 
             if (existingPerson.isPresent()) {
                 return existingPerson.get();
             }
 
             Person person = new Person();
-            person.setId(speakerId); // Using speakerId as ID for simplicity
-            person.setSpeakerId(speakerId);
+            person.setId(id);
 
             if (redner.getName() != null) {
                 // Set first name
@@ -260,8 +314,6 @@ public class ApiService {
                 for (PlenaryProtocolXml.SpeechContent speechContent : rede.getInhalte()) {
 
                     SpeechChunk chunk = new SpeechChunk();
-                    int chunkId = Integer.parseInt(speech.getId().toString() + String.valueOf(index));
-                    chunk.setId(chunkId);
                     chunk.setIndex(index);
                     chunk.setSpeech(speech);
                     String type = speechContent instanceof PlenaryProtocolXml.SpeechParagraph ? "SPEECH" : "COMMENT";
