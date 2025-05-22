@@ -1,6 +1,7 @@
 package com.example.data_fetching_service.model;
 
 import jakarta.persistence.*;
+
 import java.util.List;
 
 @Entity
@@ -10,19 +11,16 @@ public class Person {
     @Id
     private Integer id;
 
-    @Column(name = "speaker_id")
-    private Integer speakerId;
-
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "party", nullable = false)
+    @Column(name = "party")
     private String party;
 
-    @OneToMany(mappedBy = "speaker")
+    @OneToMany(mappedBy = "person")
     private List<Speech> speeches;
 
     // Getters and Setters
@@ -32,14 +30,6 @@ public class Person {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Integer getSpeakerId() {
-        return speakerId;
-    }
-
-    public void setSpeakerId(Integer speakerId) {
-        this.speakerId = speakerId;
     }
 
     public String getFirstName() {

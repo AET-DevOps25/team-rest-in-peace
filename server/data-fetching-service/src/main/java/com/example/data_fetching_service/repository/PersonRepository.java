@@ -10,12 +10,4 @@ import java.util.Optional;
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Integer> {
 
-    Optional<Person> findBySpeakerId(Integer speakerId);
-
-    List<Person> findByParty(String party);
-
-    List<Person> findByLastNameContainingIgnoreCase(String lastName);
-
-    List<Person> findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
-            String firstName, String lastName);
 }
