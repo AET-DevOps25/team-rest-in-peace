@@ -19,8 +19,8 @@ public class Speech {
     private PlenaryProtocol plenaryProtocol;
 
     @ManyToOne
-    @JoinColumn(name = "speaker_id")
-    private Person speaker;
+    @JoinColumn(name = "person_id")
+    private Person person;
 
     @Column(name = "text_plain")
     private String textPlain;
@@ -50,14 +50,6 @@ public class Speech {
         this.plenaryProtocol = plenaryProtocol;
     }
 
-    public Person getSpeaker() {
-        return speaker;
-    }
-
-    public void setSpeaker(Person speaker) {
-        this.speaker = speaker;
-    }
-
     public String getTextPlain() {
         return textPlain;
     }
@@ -80,5 +72,13 @@ public class Speech {
 
     public void setSpeechChunks(List<SpeechChunk> speechChunks) {
         this.speechChunks = speechChunks;
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
     }
 }

@@ -10,10 +10,4 @@ import java.util.List;
 
 @Repository
 public interface SpeechRepository extends JpaRepository<Speech, Integer> {
-    
-    List<Speech> findByPlenaryProtocol(PlenaryProtocol plenaryProtocol);
-    
-    List<Speech> findBySpeaker(Person speaker);
-    
-    List<Speech> findByPlenaryProtocolAndSpeaker(PlenaryProtocol plenaryProtocol, Person speaker);
 }

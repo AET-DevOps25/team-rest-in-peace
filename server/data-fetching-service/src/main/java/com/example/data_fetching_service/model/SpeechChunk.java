@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 public class SpeechChunk {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
