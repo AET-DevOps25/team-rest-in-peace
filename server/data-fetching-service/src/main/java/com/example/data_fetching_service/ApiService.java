@@ -205,7 +205,7 @@ public class ApiService {
             plenaryProtocol.setElectionPeriod(electionPeriod);
             plenaryProtocol.setDocumentNumber(documentNumber);
             plenaryProtocol.setPublisher(publisher);
-
+            logger.info("Extracted plenary protocol {} for election period {}", plenaryProtocol.getId(), plenaryProtocol.getElectionPeriod());
             return plenaryProtocolRepository.save(plenaryProtocol);
         } catch (Exception e) {
             logger.error("Error extracting and storing plenary protocol: {}", e.getMessage(), e);
@@ -248,6 +248,7 @@ public class ApiService {
 
                     // Process speech chunks
                     processSpeechChunks(rede, speech);
+                    logger.info("Processed speech {} for plenary protocol {}", speech.getId(), plenaryProtocol.getId());
                 } catch (Exception e) {
                     logger.error("Error processing speech {}: {}", rede.getId(), e.getMessage(), e);
                 }
@@ -308,23 +309,26 @@ public class ApiService {
 
 
     private void processSpeechChunks(PlenaryProtocolXml.Rede rede, Speech speech) {
-        try {
-            if (rede.getInhalte() != null) {
-                int index = 0;
-                for (PlenaryProtocolXml.SpeechContent speechContent : rede.getInhalte()) {
-
+        List<SpeechChunk> processedSpeechChunks = new ArrayList<>();
+        if (rede.getInhalte() != null) {
+            int index = 0;
+            for (PlenaryProtocolXml.SpeechContent speechContent : rede.getInhalte()) {
+                try {
                     SpeechChunk chunk = new SpeechChunk();
                     chunk.setIndex(index);
                     chunk.setSpeech(speech);
                     String type = speechContent instanceof PlenaryProtocolXml.SpeechParagraph ? "SPEECH" : "COMMENT";
                     chunk.setType(type);
                     chunk.setText(speechContent.getText());
-                    speechChunkRepository.save(chunk);
-                    index++;
+                    processedSpeechChunks.add(chunk);
+
+                } catch (Exception e) {
+                    logger.error("Error processing speech chunk for speech {}: {}", speech.getId(), e.getMessage(), e);
                 }
+                index++;
             }
-        } catch (Exception e) {
-            logger.error("Error processing speech chunks for speech {}: {}", speech.getId(), e.getMessage(), e);
         }
+        speechChunkRepository.saveAll(processedSpeechChunks);
+        logger.info("Processed {} speech chunks for speech {}", processedSpeechChunks.size(), speech.getId());
     }
 }
