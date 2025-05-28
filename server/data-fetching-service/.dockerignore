@@ -22,3 +22,4 @@ docker-compose.yml # or other docker related files
 .gradle
 
 *.md
+*.env
