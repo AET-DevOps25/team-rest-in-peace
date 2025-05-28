@@ -1,0 +1,48 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Remove existing Docker sources list (if it exists)
+      file:
+        path: /etc/apt/sources.list.d/docker.list
+        state: absent
+
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository for Noble
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu noble stable
+        state: present
+
+    - name: Update apt packages (again, after adding repo)
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+# example usage:
+  # ansible-playbook -i "ec2-54-165-63-10.compute-1.amazonaws.com," --user ubuntu --private-key="/Users/marcbeil/Library/Mobile Documents/com~apple~CloudDocs/02 Education/05 TUM Master/01 SoSe 25/04 DevOps/labsuser.pem" ansible/playbook.yml
