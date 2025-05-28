@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: welovedevops
 
-  api:
+  genai-service:
     build: genai
     container_name: genai
     ports:
