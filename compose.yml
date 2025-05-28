@@ -16,3 +16,17 @@ services:
       - "8000:8000"
     env_file:
       - .env
+
+  data-fetching-service:
+    build: server/data-fetching-service
+    container_name: data-fetching-service
+    environment:
+      BUNDESTAG_API_KEY: I9FKdCn.hbfefNWCY336dL6x62vfwNKpoN2RZ1gp21
+      DB_HOST: db
+      DB_NAME: db
+      DB_USERNAME: data-fetching-service
+      DB_PASSWORD: welovedevops
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
