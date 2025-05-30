@@ -9,11 +9,14 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: welovedevops
 
-  api:
-    build: nlp
-    container_name: nlp
+  genai-service:
+    build: genai
+    container_name: genai
     ports:
       - "8000:8000"
+    env_file:
+      - .env
+
   data-fetching-service:
     build: server/data-fetching-service
     container_name: data-fetching-service
