@@ -15,7 +15,7 @@ services:
     ports:
       - "8000:8000"
   data-fetching-service:
-    build: server/data-fetching-service
+    build: data-fetching-service
     container_name: data-fetching-service
     environment:
       BUNDESTAG_API_KEY: I9FKdCn.hbfefNWCY336dL6x62vfwNKpoN2RZ1gp21
