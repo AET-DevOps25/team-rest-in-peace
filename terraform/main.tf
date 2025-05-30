@@ -17,7 +17,7 @@ provider "aws" {
 resource "aws_instance" "policy-watch" {
   ami = "ami-084568db4383264d4" # Ubuntu
   instance_type = "t2.micro"
-  key_name = "vockey"
+  key_name      = "vockey"
   vpc_security_group_ids = [aws_security_group.allow_http_https.id]
 
   tags = {
@@ -28,6 +28,35 @@ resource "aws_instance" "policy-watch" {
 resource "aws_security_group" "allow_http_https" {
   name_prefix = "allow-http-https-"
   vpc_id      = "vpc-0d9520dc33adb20ea"
+
+  ingress {
+    from_port = 8000
+    to_port   = 8000
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 8080
+    to_port   = 8080
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 8081
+    to_port   = 8081
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
+  ingress {
+    from_port = 8082
+    to_port   = 8082
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   ingress {
     from_port = 80
@@ -47,13 +76,6 @@ resource "aws_security_group" "allow_http_https" {
     from_port = 22
     to_port   = 22
     protocol  = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Consider limiting this to your IP
-  }
-
-  egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
