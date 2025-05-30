@@ -30,3 +30,15 @@ services:
       - "8080:8080"
     depends_on:
       - db
+
+  browsing-service:
+    build: browsing-service
+    container_name: browsing-service
+    ports:
+      - "8081:8081"
+
+  notification-service:
+    build: notification-service
+    container_name: notification-service
+    ports:
+      - "8082:8082"
