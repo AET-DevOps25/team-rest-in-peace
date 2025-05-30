@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: welovedevops
 
   genai-service:
-    build: genai
+    build: genai-service
     container_name: genai
     ports:
       - "8000:8000"
