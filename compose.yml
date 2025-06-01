@@ -4,11 +4,8 @@ services:
     container_name: db
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_DB: db
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: welovedevops
-
+    env_file:
+      - .env
   genai-service:
     build: genai-service
     container_name: genai-service
@@ -20,12 +17,8 @@ services:
   data-fetching-service:
     build: data-fetching-service
     container_name: data-fetching-service
-    environment:
-      BUNDESTAG_API_KEY: I9FKdCn.hbfefNWCY336dL6x62vfwNKpoN2RZ1gp21
-      DB_HOST: db
-      DB_NAME: db
-      DB_USERNAME: data-fetching-service
-      DB_PASSWORD: welovedevops
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     depends_on:
@@ -36,9 +29,13 @@ services:
     container_name: browsing-service
     ports:
       - "8081:8081"
+    env_file:
+      - .env
 
   notification-service:
     build: notification-service
     container_name: notification-service
     ports:
       - "8082:8082"
+    env_file:
+      - .env
