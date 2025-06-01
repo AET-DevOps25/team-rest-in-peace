@@ -2,47 +2,61 @@
 - hosts: all
   become: true
   tasks:
-    - name: Remove existing Docker sources list (if it exists)
-      file:
-        path: /etc/apt/sources.list.d/docker.list
-        state: absent
-
-    - name: Update apt packages
-      apt:
-        update_cache: yes
-
-    - name: Install required packages
-      apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg
-        state: present
-
-    - name: Add Docker GPG key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-
-    - name: Add Docker Repository for Noble
-      apt_repository:
-        repo: deb https://download.docker.com/linux/ubuntu noble stable
-        state: present
-
-    - name: Update apt packages (again, after adding repo)
-      apt:
+    - name: Update yum packages
+      yum:
         update_cache: yes
 
     - name: Install Docker
-      apt:
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-buildx-plugin
-          - docker-compose-plugin
+      yum:
+        name: docker
         state: present
 
-# example usage:
-  # ansible-playbook -i "ec2-54-165-63-10.compute-1.amazonaws.com," --user ubuntu --private-key="/Users/marcbeil/Library/Mobile Documents/com~apple~CloudDocs/02 Education/05 TUM Master/01 SoSe 25/04 DevOps/labsuser.pem" ansible/playbook.yml
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/latest/download/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '+x'
+
+    - name: Add ec2-user to the docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Reconnect to server to apply group changes
+      meta: reset_connection
+
+    - name: Create app directory
+      file:
+        path: /home/ec2-user/app
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+        mode: '0755'
+
+    - name: Stop existing docker compose if applicable
+      shell: |
+        cd /home/ec2-user/app/
+        docker-compose down
+      become_user: ec2-user
+      ignore_errors: yes
+
+    - name: Copy docker-compose file
+      copy:
+        src: ../compose.aws.yml
+        dest: /home/ec2-user/app/compose.yml
+        owner: ec2-user
+        group: ec2-user
+        mode: '0644'
+
+    - name: Build and start Docker containers
+      shell: |
+        cd /home/ec2-user/app/
+        docker-compose up -d
+      become_user: ec2-user
