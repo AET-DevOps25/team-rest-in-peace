@@ -55,6 +55,14 @@
         group: ec2-user
         mode: '0644'
 
+    - name: Copy .env file
+      copy:
+          src: ../.env
+          dest: /home/ec2-user/app/.env
+          owner: ec2-user
+          group: ec2-user
+          mode: '0644'
+
     - name: Build and start Docker containers
       shell: |
         cd /home/ec2-user/app/
