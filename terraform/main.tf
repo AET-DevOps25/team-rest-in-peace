@@ -15,13 +15,17 @@ provider "aws" {
 }
 
 resource "aws_instance" "policy-watch" {
-  ami = "ami-084568db4383264d4" # Ubuntu
+  ami = "ami-0953476d60561c955" # Amazon Linux
   instance_type = "t2.micro"
   key_name      = "vockey"
   vpc_security_group_ids = [aws_security_group.allow_http_https.id]
 
   tags = {
     Name = "policy-watch"
+  }
+
+  provisioner "local-exec" {
+    command = "bash -c 'echo \"[ec2_instances]\" > ../ansible/inventory.ini && echo \"${self.public_ip}\" >> ../ansible/inventory.ini'"
   }
 }
 
@@ -76,6 +80,13 @@ resource "aws_security_group" "allow_http_https" {
     from_port = 22
     to_port   = 22
     protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol = "-1" # All protocols
     cidr_blocks = ["0.0.0.0/0"]
   }
 
