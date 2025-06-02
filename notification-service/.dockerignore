@@ -1,0 +1,25 @@
+# Ignore the target and build directories (if you are *not* building inside docker)
+target/
+build/
+
+# Ignore Git artifacts
+.git
+.gitignore
+.gitattributes
+
+# Ignore common IDE files
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# Ignore other build-related files
+*.log
+*.lock
+docker-compose.yml # or other docker related files
+.gradle
+
+*.md
+*.env
