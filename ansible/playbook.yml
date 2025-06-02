@@ -1,0 +1,70 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Update yum packages
+      yum:
+        update_cache: yes
+
+    - name: Install Docker
+      yum:
+        name: docker
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/latest/download/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '+x'
+
+    - name: Add ec2-user to the docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Reconnect to server to apply group changes
+      meta: reset_connection
+
+    - name: Create app directory
+      file:
+        path: /home/ec2-user/app
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+        mode: '0755'
+
+    - name: Stop existing docker compose if applicable
+      shell: |
+        cd /home/ec2-user/app/
+        docker-compose down
+      become_user: ec2-user
+      ignore_errors: yes
+
+    - name: Copy docker-compose file
+      copy:
+        src: ../compose.aws.yml
+        dest: /home/ec2-user/app/compose.yml
+        owner: ec2-user
+        group: ec2-user
+        mode: '0644'
+
+    - name: Copy .env file
+      copy:
+          src: ../.env
+          dest: /home/ec2-user/app/.env
+          owner: ec2-user
+          group: ec2-user
+          mode: '0644'
+
+    - name: Build and start Docker containers
+      shell: |
+        cd /home/ec2-user/app/
+        docker-compose up -d
+      become_user: ec2-user
