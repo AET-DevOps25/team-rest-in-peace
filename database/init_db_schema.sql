@@ -12,6 +12,7 @@ CREATE TABLE "speech" (
   "plenary_protocol_id" integer,
   "person_id" integer,
   "text_plain" text,
+  "text_summary" text,
   "text_embedding" vector
 );
 
@@ -45,4 +46,6 @@ CREATE USER "notfication-service" WITH PASSWORD 'welovedevops';
 CREATE USER "browsing-service" WITH PASSWORD 'welovedevops';
 
 GRANT SELECT, INSERT, UPDATE ON "plenary_protocol", "speech", "speech_chunk", "person" TO "data-fetching-service";
+GRANT SELECT, INSERT, UPDATE ON "speech", "speech_chunk" TO "nlp-service";
+
 GRANT USAGE, SELECT ON SEQUENCE speech_chunk_id_seq TO "data-fetching-service";

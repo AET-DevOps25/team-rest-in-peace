@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -31,6 +31,9 @@ public class ApiService {
 
     @Value("${bundestag.api.baseurl}")
     private String baseUrl;
+
+    @Value("${nlp.service.url}")
+    private String nlpServiceUrl;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -77,7 +80,7 @@ public class ApiService {
                     PlenaryProtocol existingProtocol = plenaryProtocolRepository.findById(plenaryProtocolId).orElse(null);
                     if (existingProtocol != null) {
                         logger.info("Skipping document {} because it already exists in the database", document.getId());
-                        break;
+                        continue; // Changed from break to continue to process other documents
                     }
                     // Extract and store plenary protocol
                     PlenaryProtocol plenaryProtocol = extractAndStorePlenaryProtocol(document);
@@ -86,7 +89,12 @@ public class ApiService {
                     if (document.getFundstelle() != null && document.getFundstelle().getXmlUrl() != null) {
                         PlenaryProtocolXml protocolXml = fetchXmlDocument(document.getFundstelle().getXmlUrl());
                         if (protocolXml != null && protocolXml.getSitzungsverlauf() != null) {
-                            processSpeeches(protocolXml, plenaryProtocol);
+                            List<Integer> speechIds = processSpeeches(protocolXml, plenaryProtocol);
+
+                            // Call NLP service to process summaries and embeddings for all speeches
+                            if (!speechIds.isEmpty()) {
+                                callNlpService(speechIds);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -148,7 +156,6 @@ public class ApiService {
         if (format != null && !format.isEmpty()) {
             builder.queryParam("format", format);
         }
-
 
         ResponseEntity<String> response = restTemplate.getForEntity(builder.toUriString(), String.class);
 
@@ -213,10 +220,13 @@ public class ApiService {
         }
     }
 
-    private void processSpeeches(PlenaryProtocolXml protocolXml, PlenaryProtocol plenaryProtocol) {
+    private List<Integer> processSpeeches(PlenaryProtocolXml protocolXml, PlenaryProtocol plenaryProtocol) {
+        List<Integer> speechIds = new ArrayList<>();
+
         if (protocolXml.getSitzungsverlauf().getTagesordnungspunkte() == null) {
-            return;
+            return speechIds;
         }
+
         for (PlenaryProtocolXml.Tagesordnungspunkt tagesordnungspunkt : protocolXml.getSitzungsverlauf().getTagesordnungspunkte()) {
             for (PlenaryProtocolXml.Rede rede : tagesordnungspunkt.getReden()) {
                 try {
@@ -235,7 +245,7 @@ public class ApiService {
                     speech.setPlenaryProtocol(plenaryProtocol);
                     speech.setPerson(speaker);
 
-//                     Combine all paragraphs to create text_plain
+                    // Combine all paragraphs to create text_plain
                     String textPlain = rede.getInhalte() != null ?
                             rede.getInhalte().stream()
                                     .filter(x -> x instanceof PlenaryProtocolXml.SpeechParagraph)
@@ -245,6 +255,7 @@ public class ApiService {
                     speech.setTextPlain(textPlain);
 
                     speech = speechRepository.save(speech);
+                    speechIds.add(speech.getId()); // Collect speech ID for NLP processing
 
                     // Process speech chunks
                     processSpeechChunks(rede, speech);
@@ -254,7 +265,38 @@ public class ApiService {
                 }
             }
         }
+
+        return speechIds;
     }
+
+    private void callNlpService(List<Integer> speechIds) {
+        try {
+            String url = nlpServiceUrl + "/process-speeches";
+
+            // Prepare request body directly as a Map
+            Map<String, List<Integer>> requestBody = new HashMap<>();
+            requestBody.put("speech_ids", speechIds);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, List<Integer>>> entity = new HttpEntity<>(requestBody, headers);
+
+            logger.info("Calling NLP service to process {} speeches", speechIds.size());
+
+            ResponseEntity<Void> response = restTemplate.postForEntity(url, entity, Void.class);
+
+            if (response.getStatusCode() == HttpStatus.ACCEPTED) {
+                logger.info("NLP service accepted speech processing request.");
+            } else {
+                logger.warn("NLP service returned unexpected status: {}", response.getStatusCode());
+            }
+
+        } catch (Exception e) {
+            logger.error("Error calling NLP service for speech processing: {}", e.getMessage(), e);
+        }
+    }
+
 
     private Person processSpeaker(PlenaryProtocolXml.Redner redner) {
         if (redner == null || redner.getId() == null) {
@@ -306,7 +348,6 @@ public class ApiService {
             throw e;
         }
     }
-
 
     private void processSpeechChunks(PlenaryProtocolXml.Rede rede, Speech speech) {
         List<SpeechChunk> processedSpeechChunks = new ArrayList<>();
