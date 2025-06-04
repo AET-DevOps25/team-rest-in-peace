@@ -1,6 +1,6 @@
 MODEL_CONFIG = {
-    "llm_model": "gemini-2.5-flash-preview-05-20",
-    "embedding_model": "models/gemini-embedding-exp-03-07",
+    "llm_model": "gemini-2.0-flash",
+    "embedding_model": "models/text-embedding-004",
 }
 
 PROMPTS = {
