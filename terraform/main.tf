@@ -24,9 +24,16 @@ resource "aws_instance" "policy-watch" {
     Name = "policy-watch"
   }
 
-  provisioner "local-exec" {
-    command = "bash -c 'echo \"[ec2_instances]\" > ../ansible/inventory.ini && echo \"${self.public_ip}\" >> ../ansible/inventory.ini'"
-  }
+  # provisioner "local-exec" {
+  #   command = "bash -c 'echo \"[ec2_instances]\" > ../ansible/inventory.ini && echo \"${self.public_ip}\" >> ../ansible/inventory.ini'"
+  # }
+}
+
+resource "local_file" "ansible_inventory" {
+  content = "[ec2_instances]\n${aws_instance.policy-watch.public_ip}\n"
+  filename = "../ansible/inventory.ini"
+  # Ensure this resource is created after the aws_instance is available
+  depends_on = [aws_instance.policy-watch]
 }
 
 resource "aws_security_group" "allow_http_https" {
