@@ -102,7 +102,7 @@ jobs:
             echo "BS_DB_PASSWORD=${{ secrets.BS_DB_PASSWORD }}" >> .env
 
             echo "# notification-service" >> .env
-            echo "NS_DB_USERNAM=notification_service" >> .env
+            echo "NS_DB_USERNAME=notification_service" >> .env
             echo "NS_DB_PASSWORD=${{ secrets.NS_DB_PASSWORD }}" >> .env
             echo "NS_MAIL_PROVIDER_API_KEY=${{ secrets.NS_MAIL_PROVIDER_API_KEY }}" >> .env
 
