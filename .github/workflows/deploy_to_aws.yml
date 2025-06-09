@@ -1,0 +1,128 @@
+name: Deploy to EC2 with Docker Compose
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  read-inventory:
+    runs-on: ubuntu-latest
+    outputs:
+      host_ip: ${{ steps.read_host.outputs.extracted_ip }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Read Single Host IP from Inventory
+        id: read_host
+        run: |
+          INVENTORY_FILE="ansible/inventory.ini"
+          
+          # Check if the inventory file exists
+          if [ ! -f "$INVENTORY_FILE" ]; then
+            echo "🛑 Error: Inventory file not found at $INVENTORY_FILE" >&2
+            exit 1
+          fi
+
+          # Extract the second line, trim whitespace, and handle Windows line endings.
+          # We use 'tr -d "\r"' to remove carriage returns and 'xargs' to trim spaces.
+          EXTRACTED_IP=$(sed -n '2p' "$INVENTORY_FILE" | tr -d '\r' | xargs)
+          
+          # Check if an IP was actually extracted
+          if [ -z "$EXTRACTED_IP" ]; then
+            echo "🤷 No IP address found on the second line of $INVENTORY_FILE. Nothing to deploy."
+            # Set an empty output if no IP is found, which will prevent the 'deploy' job from running
+            echo "extracted_ip=" >> "$GITHUB_OUTPUT"
+          else
+            # Set the extracted IP as a job output
+            echo "extracted_ip=$EXTRACTED_IP" >> "$GITHUB_OUTPUT"
+            echo "✅ Host IP extracted: $EXTRACTED_IP"
+          fi
+
+  deploy:
+    needs: read-inventory
+    if: needs.read-inventory.outputs.host_ip != ''
+    runs-on: ubuntu-latest
+
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Copy compose.yml to EC2 instance
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          # Directly use the single host IP from the 'read-inventory' job
+          host: ${{ needs.read-inventory.outputs.host_ip }}
+          username: ec2-user
+          key: ${{ secrets.ANS_SSH_PRIVATE_KEY }}
+          source: "compose.aws.yml"
+          target: "/home/ec2-user/app"
+
+      - name: Create and Populate Remote .env
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ needs.read-inventory.outputs.host_ip }}
+          username: ec2-user
+          key: ${{ secrets.ANS_SSH_PRIVATE_KEY }}
+          script: |
+            # Navigate to the application directory
+            mkdir -p /home/ec2-user/app 
+            cd /home/ec2-user/app
+
+            rm -f .env
+            touch .env
+
+            # Echo each environment variable into the .env file
+            # Use secrets for all sensitive credentials
+
+            echo "DB_HOST=db" >> .env
+            echo "DB_NAME=db" >> .env
+            echo "DB_PORT=5432" >> .env
+
+            echo "# database" >> .env
+            echo "POSTGRES_DB=db" >> .env
+            echo "POSTGRES_USER=admin" >> .env
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+
+            echo "# data-fetching-service" >> .env
+            echo "DF_BUNDESTAG_API_KEY=${{ secrets.DF_BUNDESTAG_API_KEY }}" >> .env
+            echo "DF_DB_USERNAME=data-fetching-service" >> .env
+            echo "DF_DB_PASSWORD=${{ secrets.DF_DB_PASSWORD }}" >> .env
+
+            echo "# nlp-service" >> .env
+            echo "NLP_DB_USERNAME=nlp-service" >> .env
+            echo "NLP_DB_PASSWORD=${{ secrets.NLP_DB_PASSWORD }}" >> .env
+            echo "NLP_GENAI_API_KEY=${{ secrets.NLP_GENAI_API_KEY }}" >> .env
+
+            echo "# Browse-service" >> .env
+            echo "BS_DB_USERNAME=Browse-service" >> .env
+            echo "BS_DB_PASSWORD=${{ secrets.BS_DB_PASSWORD }}" >> .env
+
+            echo "# notification-service" >> .env
+            echo "NS_DB_USERNAM=notification_service" >> .env
+            echo "NS_DB_PASSWORD=${{ secrets.NS_DB_PASSWORD }}" >> .env
+            echo "NS_MAIL_PROVIDER_API_KEY=${{ secrets.NS_MAIL_PROVIDER_API_KEY }}" >> .env
+
+
+      - name: Deploy on EC2 instance
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          # Directly use the single host IP from the 'read-inventory' job
+          host: ${{ needs.read-inventory.outputs.host_ip }}
+          username: ec2-user
+          key: ${{ secrets.ANS_SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/ec2-user/app
+            echo "🐳 Stopping and removing old containers..."
+            docker-compose down
+            
+            echo "🔄 Pulling latest images..."
+            docker-compose pull
+            
+            echo "🚀 Starting new containers in detached mode..."
+            docker-compose up -d
+            
+            echo "✅ Deployment finished successfully!"
