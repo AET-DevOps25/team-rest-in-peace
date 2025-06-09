@@ -58,7 +58,7 @@ jobs:
           host: ${{ needs.read-inventory.outputs.host_ip }}
           username: ec2-user
           key: ${{ secrets.ANS_SSH_PRIVATE_KEY }}
-          source: "compose.aws.yml"
+          source: "compose.yml"
           target: "/home/ec2-user/app"
 
       - name: Create and Populate Remote .env
