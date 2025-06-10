@@ -1,0 +1,44 @@
+# Default values for policy-watch Helm chart
+
+url: "rest-in-peace.student.k8s.aet.cit.tum.de"
+
+db:
+  image: "postgres:15-alpine"
+  port: 5432
+  name: "policy_watch_db"
+  host: "postgres-service"
+  user: "postgres"
+  password: "your_postgres_password"
+  persistentVolume:
+    size: "5Gi"
+
+genaiService:
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/genai-service:latest"
+  port: 8000
+  apiKey: "your_genai_api_key"
+  db:
+    username: "genai_user"
+    password: "genai_password"
+
+dataFetchingService:
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/data-fetching-service:latest"
+  port: 8080
+  bundestagApiKey: "your_bundestag_api_key"
+  db:
+    username: "data_fetching_user"
+    password: "data_fetching_password"
+
+browsingService:
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/browsing-service:latest"
+  port: 8081
+  db:
+    username: "browsing_user"
+    password: "browsing_password"
+
+notificationService:
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/notification-service:latest"
+  port: 8082
+  mailProviderApiKey: "your_mail_provider_api_key"
+  db:
+    username: "notification_user"
+    password: "notification_password"

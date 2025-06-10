@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: browsing-service
+  labels:
+    app: browsing-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: browsing-service
+  template:
+    metadata:
+      labels:
+        app: browsing-service
+    spec:
+      containers:
+        - name: browsing-service
+          image: {{ .Values.browsingService.image }}
+          ports:
+            - containerPort: {{ .Values.browsingService.port }}
+          envFrom:
+            - configMapRef:
+                name: browsing-service-config
+            - secretRef:
+                name: browsing-service-secret
