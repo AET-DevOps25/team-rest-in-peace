@@ -16,7 +16,7 @@ spec:
                 name: genai-service
                 port:
                   number: 8000
-          - path: /data
+          - path: /api/data
             pathType: Prefix
             backend:
               service:
