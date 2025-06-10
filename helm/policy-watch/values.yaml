@@ -3,7 +3,7 @@
 url: "rest-in-peace.student.k8s.aet.cit.tum.de"
 
 db:
-  image: "postgres:15-alpine"
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/database:latest"
   port: 5432
   name: "policy_watch_db"
   host: "postgres-service"
