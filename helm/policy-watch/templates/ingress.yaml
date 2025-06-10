@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: policy-watch-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: {{ .Values.url | quote }}
+      http:
+        paths:
+          - path: /api/genai
+            pathType: Prefix
+            backend:
+              service:
+                name: genai-service
+                port:
+                  number: 8000
+          - path: /data
+            pathType: Prefix
+            backend:
+              service:
+                name: data-fetching-service
+                port:
+                  number: 8080
+          - path: /api/browse
+            pathType: Prefix
+            backend:
+              service:
+                name: browsing-service
+                port:
+                  number: 8081
+          - path: /api/notify
+            pathType: Prefix
+            backend:
+              service:
+                name: notification-service
+                port:
+                  number: 8082
