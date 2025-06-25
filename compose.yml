@@ -39,3 +39,16 @@ services:
       - "8082:8082"
     env_file:
       - .env
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - genai-service
+      - data-fetching-service
+      - browsing-service
+      - notification-service
