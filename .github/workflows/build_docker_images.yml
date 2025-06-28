@@ -11,7 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [ database, genai-service, data-fetching-service, browsing-service, notification-service ]
+        service:
+          [
+            database,
+            genai-service,
+            data-fetching-service,
+            browsing-service,
+            client,
+            notification-service,
+          ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
