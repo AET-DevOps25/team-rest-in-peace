@@ -33,6 +33,12 @@ services:
     env_file:
       - .env
 
+  client:
+    build: ghcr.io/aet-devops25/team-rest-in-peace/client:latest
+    container_name: client
+    ports:
+      - "3000:3000"
+
   notification-service:
     image: ghcr.io/aet-devops25/team-rest-in-peace/notification-service:latest
     container_name: notification-service
