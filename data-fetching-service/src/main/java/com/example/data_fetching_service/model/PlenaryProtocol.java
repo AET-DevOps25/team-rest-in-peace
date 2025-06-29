@@ -1,6 +1,7 @@
 package com.example.data_fetching_service.model;
 
 import jakarta.persistence.*;
+
 import java.util.Date; // Import Date
 import java.util.List;
 
@@ -24,11 +25,8 @@ public class PlenaryProtocol {
     @Column(name = "date")
     private Date date;
 
-    @Column(name = "sitzungs_nr")
-    private Integer sitzungsNr;
-
     @OneToMany(mappedBy = "plenaryProtocol", cascade = CascadeType.ALL)
-    private List<Speech> speeches;
+    private List<AgendaItem> agendaItems;
 
     // Getters and Setters
     public Integer getId() {
@@ -63,12 +61,12 @@ public class PlenaryProtocol {
         this.publisher = publisher;
     }
 
-    public List<Speech> getSpeeches() {
-        return speeches;
+    public List<AgendaItem> getAgendaItems() {
+        return agendaItems;
     }
 
-    public void setSpeeches(List<Speech> speeches) {
-        this.speeches = speeches;
+    public void setAgendaItems(List<AgendaItem> agendaItems) {
+        this.agendaItems = agendaItems;
     }
 
     public Date getDate() {
@@ -79,11 +77,4 @@ public class PlenaryProtocol {
         this.date = date;
     }
 
-    public Integer getSitzungsNr() {
-        return sitzungsNr;
-    }
-
-    public void setSitzungsNr(Integer sitzungsNr) {
-        this.sitzungsNr = sitzungsNr;
-    }
 }
