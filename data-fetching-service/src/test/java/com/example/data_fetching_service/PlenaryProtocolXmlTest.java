@@ -1,5 +1,6 @@
 package com.example.data_fetching_service;
 
+import com.example.data_fetching_service.dto.DomXmlParser;
 import com.example.data_fetching_service.dto.PlenaryProtocolXml;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.junit.jupiter.api.Test;
@@ -108,5 +109,40 @@ public class PlenaryProtocolXmlTest {
         assertTrue(rede.getInhalte().get(2) instanceof PlenaryProtocolXml.Kommentar);
         PlenaryProtocolXml.Kommentar comment = (PlenaryProtocolXml.Kommentar) rede.getInhalte().get(2);
         assertTrue(comment.getText().contains("Beifall bei der FDP"));
+    }
+
+    @Test
+    public void testParseAgendaItemXml() throws Exception {
+        // Load the XML file from the test resources
+        ClassPathResource resource = new ClassPathResource("21_014.xml");
+        InputStream inputStream = resource.getInputStream();
+
+        // Read the XML content
+        String xmlContent = new String(inputStream.readAllBytes());
+
+        // Parse the XML file using DomXmlParser
+        PlenaryProtocolXml plenaryProtocolXml = DomXmlParser.parsePlenarprotokoll(xmlContent);
+
+        // Get the agenda items (Tagesordnungspunkte)
+        List<PlenaryProtocolXml.Tagesordnungspunkt> tagesordnungspunkte = 
+            plenaryProtocolXml.getSitzungsverlauf().getTagesordnungspunkte();
+
+        // Assert that there are agenda items
+        assertNotNull(tagesordnungspunkte);
+        assertFalse(tagesordnungspunkte.isEmpty());
+
+        // Find Tagesordnungspunkt 8 (the first one in the XML)
+        PlenaryProtocolXml.Tagesordnungspunkt top8 = tagesordnungspunkte.stream()
+            .filter(top -> top.getTopId().equals("Tagesordnungspunkt 8"))
+            .findFirst()
+            .orElse(null);
+
+        // Assert that Tagesordnungspunkt 8 exists and has the expected title
+        assertNotNull(top8);
+        assertNotNull(top8.getTitle());
+
+        // The title should contain text about "steuerliches Investitionssofortprogramm"
+        assertTrue(top8.getTitle().contains("steuerliches Investitionssofortprogramm"));
+        assertTrue(top8.getTitle().contains("Stärkung des Wirtschaftsstandorts Deutschland"));
     }
 }
