@@ -60,3 +60,4 @@ GRANT SELECT, INSERT, UPDATE ON "plenary_protocol", "agenda_item", "speech", "sp
 GRANT SELECT, INSERT, UPDATE ON "speech", "speech_chunk" TO "nlp-service";
 
 GRANT USAGE, SELECT ON SEQUENCE speech_chunk_id_seq TO "data-fetching-service";
+GRANT USAGE, SELECT ON SEQUENCE agenda_item_id_seq TO "data-fetching-service";
