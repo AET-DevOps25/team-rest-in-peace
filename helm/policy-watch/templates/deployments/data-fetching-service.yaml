@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-fetching-service
+  labels:
+    app: data-fetching-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-fetching-service
+  template:
+    metadata:
+      labels:
+        app: data-fetching-service
+    spec:
+      containers:
+        - name: data-fetching-service
+          image: {{ .Values.dataFetchingService.image }}
+          ports:
+            - containerPort: {{ .Values.dataFetchingService.port }}
+          envFrom:
+            - configMapRef:
+                name: data-fetching-service-config
+            - secretRef:
+                name: data-fetching-service-secret
