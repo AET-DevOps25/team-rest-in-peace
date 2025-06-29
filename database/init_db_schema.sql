@@ -4,12 +4,22 @@ CREATE TABLE "plenary_protocol" (
   "id" integer PRIMARY KEY,
   "election_period" integer,
   "document_number" integer,
-  "publisher" varchar
+  "publisher" varchar,
+  "date" date,
+  "sitzungs_nr" integer
+);
+
+CREATE TABLE "agenda_item"(
+    "id" integer PRIMARY KEY,
+    "name" varchar,
+    "title" varchar,
+    "plenary_protocol_id" integer,
+    "pdf_link" varchar
 );
 
 CREATE TABLE "speech" (
   "id" integer PRIMARY KEY,
-  "plenary_protocol_id" integer,
+  "agenda_item_id" integer,
   "person_id" integer,
   "text_plain" text,
   "text_summary" text,
@@ -31,9 +41,11 @@ CREATE TABLE "person" (
   "party" varchar
 );
 
-ALTER TABLE "speech" ADD FOREIGN KEY ("plenary_protocol_id") REFERENCES "plenary_protocol" ("id") ON DELETE CASCADE;
+ALTER TABLE "speech" ADD FOREIGN KEY ("agenda_item_id") REFERENCES "agenda_item" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "speech" ADD FOREIGN KEY ("person_id") REFERENCES "person" ("id");
+
+ALTER TABLE "agenda_item" ADD FOREIGN KEY ("plenary_protocol_id") REFERENCES "plenary_protocol" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "speech_chunk" ADD FOREIGN KEY ("speech_id") REFERENCES "speech" ("id") ON DELETE CASCADE;
 
