@@ -1,6 +1,7 @@
 package com.example.data_fetching_service.model;
 
 import jakarta.persistence.*;
+import java.util.Date; // Import Date
 import java.util.List;
 
 @Entity
@@ -18,6 +19,13 @@ public class PlenaryProtocol {
 
     @Column(name = "publisher")
     private String publisher;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "date")
+    private Date date;
+
+    @Column(name = "sitzungs_nr")
+    private Integer sitzungsNr;
 
     @OneToMany(mappedBy = "plenaryProtocol", cascade = CascadeType.ALL)
     private List<Speech> speeches;
@@ -61,5 +69,21 @@ public class PlenaryProtocol {
 
     public void setSpeeches(List<Speech> speeches) {
         this.speeches = speeches;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public Integer getSitzungsNr() {
+        return sitzungsNr;
+    }
+
+    public void setSitzungsNr(Integer sitzungsNr) {
+        this.sitzungsNr = sitzungsNr;
     }
 }
