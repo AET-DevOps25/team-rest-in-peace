@@ -5,12 +5,11 @@ CREATE TABLE "plenary_protocol" (
   "election_period" integer,
   "document_number" integer,
   "publisher" varchar,
-  "date" date,
-  "sitzungs_nr" integer
+  "date" date
 );
 
 CREATE TABLE "agenda_item"(
-    "id" integer PRIMARY KEY,
+    "id" serial PRIMARY KEY,
     "name" varchar,
     "title" varchar,
     "plenary_protocol_id" integer,
@@ -57,7 +56,7 @@ CREATE USER "notfication-service" WITH PASSWORD 'welovedevops';
 
 CREATE USER "browsing-service" WITH PASSWORD 'welovedevops';
 
-GRANT SELECT, INSERT, UPDATE ON "plenary_protocol", "speech", "speech_chunk", "person" TO "data-fetching-service";
+GRANT SELECT, INSERT, UPDATE ON "plenary_protocol", "agenda_item", "speech", "speech_chunk", "person" TO "data-fetching-service";
 GRANT SELECT, INSERT, UPDATE ON "speech", "speech_chunk" TO "nlp-service";
 
 GRANT USAGE, SELECT ON SEQUENCE speech_chunk_id_seq TO "data-fetching-service";
