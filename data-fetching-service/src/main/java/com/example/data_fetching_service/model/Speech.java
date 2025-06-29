@@ -1,9 +1,6 @@
 package com.example.data_fetching_service.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.ColumnTransformer;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.util.List;
 
@@ -15,8 +12,8 @@ public class Speech {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "plenary_protocol_id")
-    private PlenaryProtocol plenaryProtocol;
+    @JoinColumn(name = "agenda_item_id")
+    private AgendaItem agendaItem;
 
     @ManyToOne
     @JoinColumn(name = "person_id")
@@ -42,12 +39,12 @@ public class Speech {
         this.id = id;
     }
 
-    public PlenaryProtocol getPlenaryProtocol() {
-        return plenaryProtocol;
+    public AgendaItem getAgendaItem() {
+        return agendaItem;
     }
 
-    public void setPlenaryProtocol(PlenaryProtocol plenaryProtocol) {
-        this.plenaryProtocol = plenaryProtocol;
+    public void setAgendaItem(AgendaItem plenaryProtocol) {
+        this.agendaItem = plenaryProtocol;
     }
 
     public String getTextPlain() {

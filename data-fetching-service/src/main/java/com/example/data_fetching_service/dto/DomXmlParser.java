@@ -14,7 +14,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DomXmlParser {
@@ -50,6 +54,19 @@ public class DomXmlParser {
         PlenaryProtocolXml plenaryProtocolXml = new PlenaryProtocolXml();
         PlenaryProtocolXml.Sitzungsverlauf sitzungsverlaufObj = new PlenaryProtocolXml.Sitzungsverlauf();
         plenaryProtocolXml.setSitzungsverlauf(sitzungsverlaufObj);
+
+        Element rootElement = doc.getDocumentElement();
+
+        String dateString = rootElement.getAttribute("sitzung-datum"); // "18.03.2025"
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+        LocalDate localDate = LocalDate.parse(dateString, formatter);
+
+        Date dateToSet = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        plenaryProtocolXml.setDate(dateToSet);
+
         sitzungsverlaufObj.setTagesordnungspunkte(new ArrayList<>());
 
         NodeList sitzungsverlaufNodes = doc.getElementsByTagName("sitzungsverlauf");
@@ -80,6 +97,27 @@ public class DomXmlParser {
                     top.setReden(new ArrayList<>());
                     top.setParagraphs(new ArrayList<>());
                     top.setKommentare(new ArrayList<>());
+
+                    // Assuming 'topElement' is an existing org.w3c.dom.Element
+                    List<String> textContents = new ArrayList<>();
+                    NodeList childNodes = topElement.getChildNodes();
+                    String pdfUrl = null;
+                    for (int j = 0; j < childNodes.getLength(); j++) {
+                        Node node = childNodes.item(j);
+
+                        if (node.getNodeType() == Node.ELEMENT_NODE) {
+                            Element element = (Element) node;
+                            if (element.hasAttribute("klasse")) {
+                                String klasseValue = element.getAttribute("klasse");
+
+                                if (klasseValue.equalsIgnoreCase("T_fett") || klasseValue.equalsIgnoreCase("T_NaS")) {
+                                    textContents.add(element.getTextContent().trim());
+                                }
+                            }
+                        }
+                    }
+                    String result = String.join("\n", textContents);
+                    top.setTitle(result);
 
                     // Reden within TOP
                     NodeList redenNodes = topElement.getElementsByTagName("rede");
