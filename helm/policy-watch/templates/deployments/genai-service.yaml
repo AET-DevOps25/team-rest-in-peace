@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai-service
+  labels:
+    app: genai-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genai-service
+  template:
+    metadata:
+      labels:
+        app: genai-service
+    spec:
+      containers:
+        - name: genai-service
+          image: {{ .Values.genaiService.image }}
+          ports:
+            - containerPort: {{ .Values.genaiService.port }}
+          envFrom:
+            - configMapRef:
+                name: genai-service-config
+            - secretRef:
+                name: genai-service-secret
