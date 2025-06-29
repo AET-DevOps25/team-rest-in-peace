@@ -12,8 +12,7 @@ CREATE TABLE "agenda_item"(
     "id" serial PRIMARY KEY,
     "name" varchar,
     "title" varchar,
-    "plenary_protocol_id" integer,
-    "pdf_link" varchar
+    "plenary_protocol_id" integer
 );
 
 CREATE TABLE "speech" (

@@ -20,9 +20,6 @@ public class AgendaItem {
     @JoinColumn(name = "plenary_protocol_id")
     private PlenaryProtocol plenaryProtocol;
 
-    @Column(name = "pdf_link")
-    private String pdfLink;
-
     // Getters and Setters
     public Integer getId() {
         return id;
@@ -56,11 +53,4 @@ public class AgendaItem {
         this.plenaryProtocol = plenaryProtocol;
     }
 
-    public String getPdfLink() {
-        return pdfLink;
-    }
-
-    public void setPdfLink(String pdfLink) {
-        this.pdfLink = pdfLink;
-    }
 }
