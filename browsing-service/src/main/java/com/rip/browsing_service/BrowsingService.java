@@ -1,9 +1,6 @@
 package com.rip.browsing_service;
 
-import com.rip.browsing_service.dto.PlenaryProtocolDto;
-import com.rip.browsing_service.dto.PlenaryProtocolPartyStatsDto;
-import com.rip.browsing_service.dto.SpeakerStatisticDto;
-import com.rip.browsing_service.dto.StatisticsDto;
+import com.rip.browsing_service.dto.*;
 import com.rip.browsing_service.model.PlenaryProtocol;
 import com.rip.browsing_service.repository.*;
 import org.slf4j.Logger;
@@ -123,5 +120,9 @@ public class BrowsingService {
 
     public Page<SpeakerStatisticDto> getAllSpeakerStatistics(Pageable pageable) {
         return speechRepository.findAllSpeakerStatistics(pageable);
+    }
+
+    public Page<SpeechDto> getAllSpeechDetails(Pageable pageable) {
+        return speechRepository.findAllSpeechDetails(pageable);
     }
 }
