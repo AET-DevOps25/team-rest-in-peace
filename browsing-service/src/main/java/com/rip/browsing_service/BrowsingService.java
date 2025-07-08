@@ -2,6 +2,7 @@ package com.rip.browsing_service;
 
 import com.rip.browsing_service.dto.PlenaryProtocolDto;
 import com.rip.browsing_service.dto.PlenaryProtocolPartyStatsDto;
+import com.rip.browsing_service.dto.SpeakerStatisticDto;
 import com.rip.browsing_service.dto.StatisticsDto;
 import com.rip.browsing_service.model.PlenaryProtocol;
 import com.rip.browsing_service.repository.*;
@@ -120,4 +121,7 @@ public class BrowsingService {
                 publisherName);
     }
 
+    public Page<SpeakerStatisticDto> getAllSpeakerStatistics(Pageable pageable) {
+        return speechRepository.findAllSpeakerStatistics(pageable);
+    }
 }
