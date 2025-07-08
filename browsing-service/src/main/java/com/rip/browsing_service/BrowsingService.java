@@ -53,7 +53,7 @@ public class BrowsingService {
     }
 
     public Page<PlenaryProtocolDto> getAllPlenaryProtocols(Pageable pageable) {
-        Page<PlenaryProtocol> protocolsPage = plenaryProtocolRepository.findAll(pageable);
+        Page<PlenaryProtocol> protocolsPage = plenaryProtocolRepository.findAllOrderByDateDescNullsLast(pageable);
         return protocolsPage.map(protocol -> {
             List<Integer> allAgendaItemIds = agendaItemRepository.findAllIdsByPlenaryProtocolId(protocol.getId());
 
