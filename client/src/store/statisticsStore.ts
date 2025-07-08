@@ -1,14 +1,14 @@
 import { BROWSING_BASE_URL } from "@/global";
-import type { Statistics } from "@/types/Statistics";
+import type { StatisticsDto } from "@/types/StatisticsDto";
 import { create } from "zustand";
 
 interface StatisticsStoreState {
-  statistics: Statistics;
+  statistics: StatisticsDto;
   setStatistics: () => Promise<void>;
 }
 
 const api = {
-  getStatistics: async (): Promise<Statistics> => {
+  getStatistics: async (): Promise<StatisticsDto> => {
     const res = await fetch(`${BROWSING_BASE_URL}/statistics`);
 
     if (!res.ok) {

@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import LandingPage from "./page/LandingPage/LandingPage.tsx";
 import PlenarySessionListPage from "./page/LandingPage/PlenarySessionListPage/PlenarySessionListPage.tsx";
 import CategoryLayout from "./components/layouts/CategoryLayout.tsx";
+import SpeakerStatisticsListPage from "./page/LandingPage/SpeakerStatisticsListPage/SpeakerStatisticsListPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -39,7 +40,7 @@ const router = createBrowserRouter([
             title="Politiker im Überblick"
             subtitle="Entdecken Sie Reden und Statistiken einzelner Politiker"
           >
-            <div>Nach Redner</div>
+            <SpeakerStatisticsListPage />
           </CategoryLayout>
         ),
       },
