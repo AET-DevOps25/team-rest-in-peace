@@ -4,10 +4,7 @@ import com.example.data_fetching_service.dto.BundestagApiResponse;
 import com.example.data_fetching_service.dto.DomXmlParser;
 import com.example.data_fetching_service.dto.PlenaryProtocolXml;
 import com.example.data_fetching_service.model.*;
-import com.example.data_fetching_service.repository.PlenaryProtocolRepository;
-import com.example.data_fetching_service.repository.PersonRepository;
-import com.example.data_fetching_service.repository.SpeechRepository;
-import com.example.data_fetching_service.repository.SpeechChunkRepository;
+import com.example.data_fetching_service.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +37,9 @@ public class ApiService {
 
     @Autowired
     private PlenaryProtocolRepository plenaryProtocolRepository;
+
+    @Autowired
+    private AgendaItemRepository agendaItemRepository;
 
     @Autowired
     private SpeechRepository speechRepository;
@@ -83,19 +83,25 @@ public class ApiService {
                         continue; // Changed from break to continue to process other documents
                     }
                     // Extract and store plenary protocol
-                    PlenaryProtocol plenaryProtocol = extractAndStorePlenaryProtocol(document);
+                    PlenaryProtocol plenaryProtocol = extractPlenaryProtocol(document);
 
                     // Fetch and process XML file
                     if (document.getFundstelle() != null && document.getFundstelle().getXmlUrl() != null) {
                         PlenaryProtocolXml protocolXml = fetchXmlDocument(document.getFundstelle().getXmlUrl());
                         if (protocolXml != null && protocolXml.getSitzungsverlauf() != null) {
+                            plenaryProtocol.setDate(protocolXml.getDate());
+                            plenaryProtocolRepository.save(plenaryProtocol);
                             List<Integer> speechIds = processSpeeches(protocolXml, plenaryProtocol);
 
                             // Call NLP service to process summaries and embeddings for all speeches
                             if (!speechIds.isEmpty()) {
                                 callNlpService(speechIds);
                             }
+                        } else {
+                            plenaryProtocolRepository.save(plenaryProtocol);
                         }
+                    } else {
+                        plenaryProtocolRepository.save(plenaryProtocol);
                     }
                 } catch (Exception e) {
                     logger.error("Error processing document {}: {}", document.getId(), e.getMessage(), e);
@@ -181,7 +187,7 @@ public class ApiService {
         }
     }
 
-    private PlenaryProtocol extractAndStorePlenaryProtocol(BundestagApiResponse.Document document) {
+    private PlenaryProtocol extractPlenaryProtocol(BundestagApiResponse.Document document) {
         try {
             int id;
             try {
@@ -212,8 +218,9 @@ public class ApiService {
             plenaryProtocol.setElectionPeriod(electionPeriod);
             plenaryProtocol.setDocumentNumber(documentNumber);
             plenaryProtocol.setPublisher(publisher);
+
             logger.info("Extracted plenary protocol {} for election period {}", plenaryProtocol.getId(), plenaryProtocol.getElectionPeriod());
-            return plenaryProtocolRepository.save(plenaryProtocol);
+            return plenaryProtocol;
         } catch (Exception e) {
             logger.error("Error extracting and storing plenary protocol: {}", e.getMessage(), e);
             throw e;
@@ -227,7 +234,13 @@ public class ApiService {
             return speechIds;
         }
 
+
         for (PlenaryProtocolXml.Tagesordnungspunkt tagesordnungspunkt : protocolXml.getSitzungsverlauf().getTagesordnungspunkte()) {
+            AgendaItem agendaItem = new AgendaItem();
+            agendaItem.setTitle(tagesordnungspunkt.getTitle());
+            agendaItem.setName(tagesordnungspunkt.getTopId());
+            agendaItem.setPlenaryProtocol(plenaryProtocol);
+            agendaItem = agendaItemRepository.save(agendaItem);
             for (PlenaryProtocolXml.Rede rede : tagesordnungspunkt.getReden()) {
                 try {
                     // Process speaker
@@ -242,7 +255,7 @@ public class ApiService {
                         logger.warn("Speech ID is not a valid integer: {}. Using hash code instead.", rede.getId());
                         speech.setId(rede.getId().hashCode());
                     }
-                    speech.setPlenaryProtocol(plenaryProtocol);
+                    speech.setAgendaItem(agendaItem);
                     speech.setPerson(speaker);
 
                     // Combine all paragraphs to create text_plain
