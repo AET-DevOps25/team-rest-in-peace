@@ -1,6 +1,7 @@
 package com.rip.browsing_service;
 import com.rip.browsing_service.dto.PlenaryProtocolDto;
 import com.rip.browsing_service.dto.SpeakerStatisticDto;
+import com.rip.browsing_service.dto.SpeechDto;
 import com.rip.browsing_service.dto.StatisticsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -52,5 +53,13 @@ public class Controller {
         Pageable pageable = PageRequest.of(page, size);
         Page<SpeakerStatisticDto> stats = browsingService.getAllSpeakerStatistics(pageable);
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/speeches")
+    public Page<SpeechDto> getAllSpeeches(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return browsingService.getAllSpeechDetails(PageRequest.of(page, size));
     }
 }

@@ -1,6 +1,7 @@
 package com.rip.browsing_service.repository;
 
 import com.rip.browsing_service.dto.SpeakerStatisticDto;
+import com.rip.browsing_service.dto.SpeechDto;
 import com.rip.browsing_service.model.Speech;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,4 +59,33 @@ public interface SpeechRepository extends JpaRepository<Speech, Integer> {
         """,
             nativeQuery = true)
     Page<SpeakerStatisticDto> findAllSpeakerStatistics(Pageable pageable);
+
+    @Query(value = """
+        SELECT
+            p.party as party,
+            pp.date as protocolDate,
+            ARRAY_LENGTH(REGEXP_SPLIT_TO_ARRAY(s.text_plain, '\\s+'), 1) as wordCount,
+            p.first_name as firstName,
+            p.last_name as lastName,
+            ai.title as agendaItemTitle,
+            s.text_summary as textSummary,
+            s.text_plain as textPlain,
+            CONCAT(pp.document_number, '. Sitzung des ', pp.election_period, '. Deutschen ',
+                   CASE WHEN pp.publisher ILIKE 'BR' THEN 'Bundesrat' ELSE 'Bundestag' END) as protocolName
+        FROM speech s
+        JOIN person p ON s.person_id = p.id
+        JOIN agenda_item ai ON s.agenda_item_id = ai.id
+        JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
+        ORDER BY pp.date DESC NULLS LAST,
+                 ARRAY_LENGTH(REGEXP_SPLIT_TO_ARRAY(s.text_plain, '\\s+'), 1) DESC
+        """,
+            countQuery = """
+        SELECT COUNT(*)
+        FROM speech s
+        JOIN person p ON s.person_id = p.id
+        JOIN agenda_item ai ON s.agenda_item_id = ai.id
+        JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
+        """,
+            nativeQuery = true)
+    Page<SpeechDto> findAllSpeechDetails(Pageable pageable);
 }

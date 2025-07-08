@@ -5,6 +5,7 @@ import LandingPage from "./page/LandingPage/LandingPage.tsx";
 import PlenarySessionListPage from "./page/LandingPage/PlenarySessionListPage/PlenarySessionListPage.tsx";
 import CategoryLayout from "./components/layouts/CategoryLayout.tsx";
 import SpeakerStatisticsListPage from "./page/LandingPage/SpeakerStatisticsListPage/SpeakerStatisticsListPage.tsx";
+import SpeechListPage from "./page/LandingPage/SpeechListPage/SpeechListPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -29,7 +30,7 @@ const router = createBrowserRouter([
             title="Reden nach Parteien"
             subtitle="Durchsuchen Sie Reden sortiert nach Partei und Datum"
           >
-            <div>Nach Partei</div>
+            <SpeechListPage />
           </CategoryLayout>
         ),
       },
