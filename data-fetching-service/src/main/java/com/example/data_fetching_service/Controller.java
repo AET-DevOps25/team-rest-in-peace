@@ -26,7 +26,7 @@ public class Controller {
             @RequestParam(name = "f.vorgangstyp", required = false) String vorgangstyp,
             @RequestParam(name = "f.vorgangstyp_notation", required = false) String vorgangstypNotation,
             @RequestParam(name = "f.wahlperiode", required = false) String wahlperiode,
-            @RequestParam(name = "f.zuordnung", required = false) String zuordnung,
+//            @RequestParam(name = "f.zuordnung", required = false) String zuordnung,
             @RequestParam(name = "cursor", required = false) String cursor,
             @RequestParam(name = "format", required = false, defaultValue = "json") String format) { // Default to json as per your request
 
@@ -35,7 +35,7 @@ public class Controller {
                 datumStart, datumEnd,
                 dokumentnummer, id,
                 vorgangstyp, vorgangstypNotation,
-                wahlperiode, zuordnung,
+                wahlperiode,
                 cursor, format
         );
 

@@ -59,7 +59,7 @@ public class ApiService {
             String datumStart, String datumEnd,
             String dokumentnummer, String id,
             String vorgangstyp, String vorgangstypNotation,
-            String wahlperiode, String zuordnung,
+            String wahlperiode,
             String cursor, String format) {
         try {
             // Fetch metadata from the Bundestag API
@@ -68,7 +68,7 @@ public class ApiService {
                     datumStart, datumEnd,
                     dokumentnummer, id,
                     vorgangstyp, vorgangstypNotation,
-                    wahlperiode, zuordnung,
+                    wahlperiode,
                     cursor, format
             );
             logger.info("Fetched {} documents from the Bundestag API", documents.size());
@@ -117,7 +117,7 @@ public class ApiService {
             String datumStart, String datumEnd,
             String dokumentnummer, String id,
             String vorgangstyp, String vorgangstypNotation,
-            String wahlperiode, String zuordnung,
+            String wahlperiode,
             String cursor, String format) {
 
         UriComponentsBuilder builder = UriComponentsBuilder
@@ -153,15 +153,14 @@ public class ApiService {
         if (wahlperiode != null && !wahlperiode.isEmpty()) {
             builder.queryParam("f.wahlperiode", wahlperiode);
         }
-        if (zuordnung != null && !zuordnung.isEmpty()) {
-            builder.queryParam("f.zuordnung", zuordnung);
-        }
         if (cursor != null && !cursor.isEmpty()) {
             builder.queryParam("cursor", cursor);
         }
         if (format != null && !format.isEmpty()) {
             builder.queryParam("format", format);
         }
+
+        builder.queryParam("f.zuordnung", "BT");
 
         ResponseEntity<String> response = restTemplate.getForEntity(builder.toUriString(), String.class);
 
