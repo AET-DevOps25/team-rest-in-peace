@@ -378,3 +378,9 @@ sketch
 #
 # Recommended template: Node.gitignore
 terraform/.terraform.lock.hcl
+
+
+
+**/values-prod.yaml
+
+*.pem

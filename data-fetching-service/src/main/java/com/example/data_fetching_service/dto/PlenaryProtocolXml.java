@@ -9,12 +9,16 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class PlenaryProtocolXml {
 
     private Sitzungsverlauf sitzungsverlauf;
+
+    private Date date;
 
     public Sitzungsverlauf getSitzungsverlauf() {
         return sitzungsverlauf;
@@ -22,6 +26,14 @@ public class PlenaryProtocolXml {
 
     public void setSitzungsverlauf(Sitzungsverlauf sitzungsverlauf) {
         this.sitzungsverlauf = sitzungsverlauf;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public static class Sitzungsverlauf {
@@ -69,6 +81,9 @@ public class PlenaryProtocolXml {
     public static class Tagesordnungspunkt {
         private String topId;
 
+        private String title;
+
+        private String pdfUrl;
 
         private List<Rede> reden;
 
@@ -110,6 +125,21 @@ public class PlenaryProtocolXml {
         }
 
 
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getPdfUrl() {
+            return pdfUrl;
+        }
+
+        public void setPdfUrl(String pdfUrl) {
+            this.pdfUrl = pdfUrl;
+        }
     }
 
     public static class Rede {
