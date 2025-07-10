@@ -101,6 +101,7 @@ public class ApiService {
                             plenaryProtocolRepository.save(plenaryProtocol);
                         }
                     } else {
+                        logger.info("Skipping document because xml does not yet exist.");
                         plenaryProtocolRepository.save(plenaryProtocol);
                     }
                 } catch (Exception e) {
@@ -306,7 +307,7 @@ public class ApiService {
             }
 
         } catch (Exception e) {
-            logger.error("Error calling NLP service for speech processing: {}", e.getMessage(), e);
+            logger.error("Error calling NLP service for speech processing.");
         }
     }
 
