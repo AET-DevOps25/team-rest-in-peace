@@ -1,6 +1,7 @@
 package com.example.data_fetching_service;
 
 import com.example.data_fetching_service.dto.BundestagApiResponse;
+import com.example.data_fetching_service.dto.BundestagPersonApiResponse;
 import com.example.data_fetching_service.dto.DomXmlParser;
 import com.example.data_fetching_service.dto.PlenaryProtocolXml;
 import com.example.data_fetching_service.model.*;
@@ -10,12 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -352,6 +355,12 @@ public class ApiService {
 
             // Map faction to party
             String party = redner.getName().getFraktion();
+            if (party == null) {
+                logger.warn("Speaker party is null. Fetching party manually...");
+                party = fetchPartyForPerson(person);
+                logger.info("Fetched party: {}", party);
+            }
+
             person.setParty(party);
 
             return personRepository.save(person);
@@ -359,6 +368,42 @@ public class ApiService {
             logger.error("Error processing speaker: {}", e.getMessage(), e);
             throw e;
         }
+    }
+
+    private String fetchPartyForPerson(Person person) {
+        URI uri = UriComponentsBuilder
+                .fromUriString(baseUrl)
+                .path("/person")
+                .queryParam("apikey", apiKey)
+                .queryParam("format", "json")
+                .queryParam("f.person", person.getLastName().replaceFirst("(?i)^dr\\.\\s*", "").trim() + " " + person.getFirstName())
+                .build()
+                .encode()
+                .toUri();
+
+        logger.info("Fetching party for person {} {}", person.getLastName(), person.getFirstName());
+        logger.debug("URI: {}", uri);
+
+        // 2) Fetch & bind directly into your PersonListResponse DTO
+        ResponseEntity<BundestagPersonApiResponse> response = restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                new ParameterizedTypeReference<BundestagPersonApiResponse>() {
+                }
+        );
+
+        BundestagPersonApiResponse apiResponse = response.getBody();
+        if (apiResponse != null && !apiResponse.getDocuments().isEmpty()) {
+            var p = apiResponse.getDocuments().get(0);
+            return Optional.ofNullable(p.getParty())
+                    .orElseGet(() -> p.getRoles().stream()
+                            .map(BundestagPersonApiResponse.PersonRole::getParty)
+                            .filter(Objects::nonNull)
+                            .findFirst()
+                            .orElse(null));
+        }
+        return null;
     }
 
     private void processSpeechChunks(PlenaryProtocolXml.Rede rede, Speech speech) {
