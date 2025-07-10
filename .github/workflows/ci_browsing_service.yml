@@ -1,4 +1,4 @@
-name: CI for Data Fetching Service
+name: CI for Browsing Service
 
 on:
   push:
