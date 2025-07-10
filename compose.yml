@@ -52,3 +52,17 @@ services:
       - data-fetching-service
       - browsing-service
       - notification-service
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - genai-service
+      - data-fetching-service
+      - browsing-service
+      - notification-service
+
