@@ -1,5 +1,7 @@
 import os
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+import time
+
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, Response
 from pydantic import BaseModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -8,6 +10,8 @@ from app.config import MODEL_CONFIG, PROMPTS
 import asyncpg
 import asyncio
 import logging
+from prometheus_client import start_http_server, Summary, Counter, Gauge, generate_latest, CONTENT_TYPE_LATEST
+from starlette.responses import Response as StarletteResponse
 
 app = FastAPI(title="German Plenary Protocol API", version="1.0.0")
 
@@ -17,6 +21,10 @@ NLP_DB_PASSWORD = os.getenv("NLP_DB_PASSWORD")
 NLP_DB_HOST = os.getenv("DB_HOST", "localhost")
 NLP_DB_PORT = os.getenv("DB_PORT", "5432")
 NLP_DB_NAME = os.getenv("DB_NAME", "postgres")
+
+# Basic metrics
+REQUEST_COUNT = Counter("http_requests_total", "Total HTTP requests")
+REQUEST_LATENCY = Summary("http_request_latency_seconds", "HTTP request latency in seconds")
 
 if not NLP_API_KEY:
     raise ValueError("Please set the NLP_GENAI_API_KEY in your environment variables.")
@@ -51,6 +59,20 @@ async def get_db_connection():
         port=NLP_DB_PORT,
         database=NLP_DB_NAME
     )
+
+@app.middleware("http")
+async def prometheus_middleware(request: Request, call_next):
+    REQUEST_COUNT.inc()
+    start_time = time.time()
+    response = await call_next(request)
+    latency = time.time() - start_time
+    REQUEST_LATENCY.observe(latency)
+    return response
+
+@app.get("/metrics")
+def metrics():
+    data = generate_latest()
+    return StarletteResponse(content=data, media_type=CONTENT_TYPE_LATEST)
 
 
 # Request/Response Models
