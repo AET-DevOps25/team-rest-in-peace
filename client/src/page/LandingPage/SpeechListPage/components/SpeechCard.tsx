@@ -47,7 +47,7 @@ const SpeechCard = ({ speech }: { speech: SpeechDto }) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-muted-foreground leading-relaxed break-words">
             {speech.textSummary
               ? speech.textSummary
               : "Keine Zusammenfassung verfügbar"}
@@ -56,7 +56,7 @@ const SpeechCard = ({ speech }: { speech: SpeechDto }) => {
           {open && (
             <div className="border-t pt-4">
               <h4 className="font-semibold mb-2">Vollständige Rede:</h4>
-              <p className="leading-relaxed whitespace-pre-line">
+              <p className="leading-relaxed whitespace-pre-line break-words">
                 {speech.textPlain}
               </p>
             </div>

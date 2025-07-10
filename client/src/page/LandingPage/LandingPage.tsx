@@ -42,7 +42,7 @@ const LandingPage = () => {
           }}
         />
       </div>
-      <div className="flex flex-col min-w-fit max-w-[100rem] w-full h-full mx-auto p-4 gap-4">
+      <div className="flex flex-col min-w-0 max-w-[100rem] w-full h-full mx-auto p-4 gap-4">
         <div className="flex flex-col items-center text-center p-4 gap-2">
           <h1 className="text-5xl font-bold bg-gradient-to-r via-cyan-600 from-violet-800 to-blue-800 min-h-14 bg-clip-text text-transparent">
             Bundestag Reden Suche
