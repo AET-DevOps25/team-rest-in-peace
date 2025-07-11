@@ -1,0 +1,40 @@
+name: CI for Genai Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'genai-service/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'genai-service/**'
+
+defaults:
+  run:
+    working-directory: genai-service
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install --no-cache-dir -r requirements-dev.txt
+
+      - name: Lint project
+        run: |
+          black --check app
+
+      - name: Run tests
+        run: |
+          pytest --maxfail=1 --disable-warnings -q
