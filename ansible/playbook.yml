@@ -49,7 +49,7 @@
 
     - name: Copy docker-compose file
       copy:
-        src: ../compose.aws.yml
+        src: ../compose.yml
         dest: /home/ec2-user/app/compose.yml
         owner: ec2-user
         group: ec2-user
@@ -57,11 +57,11 @@
 
     - name: Copy .env file
       copy:
-          src: ../.env
-          dest: /home/ec2-user/app/.env
-          owner: ec2-user
-          group: ec2-user
-          mode: '0644'
+        src: ../.env
+        dest: /home/ec2-user/app/.env
+        owner: ec2-user
+        group: ec2-user
+        mode: '0644'
 
     - name: Build and start Docker containers
       shell: |
