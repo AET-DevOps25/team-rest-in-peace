@@ -29,6 +29,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./data-fetching-service/gradlew
 
-      - name: Lin and test Project
+      - name: Lint and test Project
         run: ./gradlew check
         working-directory: ./data-fetching-service
