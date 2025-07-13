@@ -71,3 +71,8 @@ GRANT SELECT ON "plenary_protocol", "agenda_item", "speech", "speech_chunk", "pe
 
 GRANT USAGE, SELECT ON SEQUENCE speech_chunk_id_seq TO "data-fetching-service";
 GRANT USAGE, SELECT ON SEQUENCE agenda_item_id_seq TO "data-fetching-service";
+
+GRANT SELECT, INSERT, DELETE ON "notification_setting" TO "notfication-service";
+GRANT SELECT ON "person" TO "notfication-service";
+GRANT USAGE, SELECT ON SEQUENCE notification_setting_id_seq TO "notfication-service";
+
