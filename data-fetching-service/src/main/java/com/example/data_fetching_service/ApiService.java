@@ -1,6 +1,7 @@
 package com.example.data_fetching_service;
 
 import com.example.data_fetching_service.dto.BundestagApiResponse;
+import com.example.data_fetching_service.dto.BundestagPersonApiResponse;
 import com.example.data_fetching_service.dto.DomXmlParser;
 import com.example.data_fetching_service.dto.PlenaryProtocolXml;
 import com.example.data_fetching_service.model.*;
@@ -10,12 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,7 +62,7 @@ public class ApiService {
             String datumStart, String datumEnd,
             String dokumentnummer, String id,
             String vorgangstyp, String vorgangstypNotation,
-            String wahlperiode, String zuordnung,
+            String wahlperiode,
             String cursor, String format) {
         try {
             // Fetch metadata from the Bundestag API
@@ -68,7 +71,7 @@ public class ApiService {
                     datumStart, datumEnd,
                     dokumentnummer, id,
                     vorgangstyp, vorgangstypNotation,
-                    wahlperiode, zuordnung,
+                    wahlperiode,
                     cursor, format
             );
             logger.info("Fetched {} documents from the Bundestag API", documents.size());
@@ -101,6 +104,7 @@ public class ApiService {
                             plenaryProtocolRepository.save(plenaryProtocol);
                         }
                     } else {
+                        logger.info("Skipping document because xml does not yet exist.");
                         plenaryProtocolRepository.save(plenaryProtocol);
                     }
                 } catch (Exception e) {
@@ -117,7 +121,7 @@ public class ApiService {
             String datumStart, String datumEnd,
             String dokumentnummer, String id,
             String vorgangstyp, String vorgangstypNotation,
-            String wahlperiode, String zuordnung,
+            String wahlperiode,
             String cursor, String format) {
 
         UriComponentsBuilder builder = UriComponentsBuilder
@@ -153,15 +157,14 @@ public class ApiService {
         if (wahlperiode != null && !wahlperiode.isEmpty()) {
             builder.queryParam("f.wahlperiode", wahlperiode);
         }
-        if (zuordnung != null && !zuordnung.isEmpty()) {
-            builder.queryParam("f.zuordnung", zuordnung);
-        }
         if (cursor != null && !cursor.isEmpty()) {
             builder.queryParam("cursor", cursor);
         }
         if (format != null && !format.isEmpty()) {
             builder.queryParam("format", format);
         }
+
+        builder.queryParam("f.zuordnung", "BT");
 
         ResponseEntity<String> response = restTemplate.getForEntity(builder.toUriString(), String.class);
 
@@ -306,7 +309,7 @@ public class ApiService {
             }
 
         } catch (Exception e) {
-            logger.error("Error calling NLP service for speech processing: {}", e.getMessage(), e);
+            logger.error("Error calling NLP service for speech processing.");
         }
     }
 
@@ -353,6 +356,12 @@ public class ApiService {
 
             // Map faction to party
             String party = redner.getName().getFraktion();
+            if (party == null) {
+                logger.warn("Speaker party is null. Fetching party manually...");
+                party = fetchPartyForPerson(person);
+                logger.info("Fetched party: {}", party);
+            }
+
             person.setParty(party);
 
             return personRepository.save(person);
@@ -360,6 +369,42 @@ public class ApiService {
             logger.error("Error processing speaker: {}", e.getMessage(), e);
             throw e;
         }
+    }
+
+    private String fetchPartyForPerson(Person person) {
+        URI uri = UriComponentsBuilder
+                .fromUriString(baseUrl)
+                .path("/person")
+                .queryParam("apikey", apiKey)
+                .queryParam("format", "json")
+                .queryParam("f.person", person.getLastName().replaceFirst("(?i)^dr\\.\\s*", "").trim() + " " + person.getFirstName())
+                .build()
+                .encode()
+                .toUri();
+
+        logger.info("Fetching party for person {} {}", person.getLastName(), person.getFirstName());
+        logger.debug("URI: {}", uri);
+
+        // 2) Fetch & bind directly into your PersonListResponse DTO
+        ResponseEntity<BundestagPersonApiResponse> response = restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                new ParameterizedTypeReference<BundestagPersonApiResponse>() {
+                }
+        );
+
+        BundestagPersonApiResponse apiResponse = response.getBody();
+        if (apiResponse != null && !apiResponse.getDocuments().isEmpty()) {
+            var p = apiResponse.getDocuments().get(0);
+            return Optional.ofNullable(p.getParty())
+                    .orElseGet(() -> p.getRoles().stream()
+                            .map(BundestagPersonApiResponse.PersonRole::getParty)
+                            .filter(Objects::nonNull)
+                            .findFirst()
+                            .orElse(null));
+        }
+        return null;
     }
 
     private void processSpeechChunks(PlenaryProtocolXml.Rede rede, Speech speech) {
