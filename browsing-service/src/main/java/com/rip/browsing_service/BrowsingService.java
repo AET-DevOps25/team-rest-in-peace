@@ -122,7 +122,7 @@ public class BrowsingService {
         return speechRepository.findAllSpeakerStatistics(pageable);
     }
 
-    public Page<SpeechDto> getAllSpeechDetails(Pageable pageable) {
-        return speechRepository.findAllSpeechDetails(pageable);
+    public Page<SpeechDto> getAllSpeechDetails(Pageable pageable, String party, Integer speakerId, Integer plenaryProtocolId) {
+        return speechRepository.findAllSpeechDetailsFiltered(pageable, party, speakerId, plenaryProtocolId);
     }
 }
