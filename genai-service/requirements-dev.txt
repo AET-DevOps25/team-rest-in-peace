@@ -1,8 +1,7 @@
-fastapi==0.104.1
-uvicorn==0.23.2
-langchain_google_genai
-pydantic
-asyncpg
+# Include base requirements
+-r requirements.txt
+
+# Development and testing dependencies
 pytest
 pytest-asyncio
 black
