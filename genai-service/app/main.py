@@ -14,7 +14,14 @@ from app.config import MODEL_CONFIG, PROMPTS
 import asyncpg
 import asyncio
 import logging
-from prometheus_client import start_http_server, Summary, Counter, Gauge, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import (
+    start_http_server,
+    Summary,
+    Counter,
+    Gauge,
+    generate_latest,
+    CONTENT_TYPE_LATEST,
+)
 from starlette.responses import Response as StarletteResponse
 
 app = FastAPI(title="German Plenary Protocol API", version="1.0.0")
@@ -28,7 +35,9 @@ NLP_DB_NAME = os.getenv("DB_NAME", "postgres")
 
 # Basic metrics
 REQUEST_COUNT = Counter("http_requests_total", "Total HTTP requests")
-REQUEST_LATENCY = Summary("http_request_latency_seconds", "HTTP request latency in seconds")
+REQUEST_LATENCY = Summary(
+    "http_request_latency_seconds", "HTTP request latency in seconds"
+)
 
 if not NLP_API_KEY:
     raise ValueError("Please set the NLP_GENAI_API_KEY in your environment variables.")
@@ -64,6 +73,7 @@ async def get_db_connection():
         database=NLP_DB_NAME,
     )
 
+
 @app.middleware("http")
 async def prometheus_middleware(request: Request, call_next):
     REQUEST_COUNT.inc()
@@ -72,6 +82,7 @@ async def prometheus_middleware(request: Request, call_next):
     latency = time.time() - start_time
     REQUEST_LATENCY.observe(latency)
     return response
+
 
 @app.get("/metrics")
 def metrics():
