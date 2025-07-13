@@ -19,4 +19,6 @@ public interface NotificationSettingRepository extends JpaRepository<Notificatio
     @Query("DELETE FROM NotificationSetting ns WHERE ns.email = :email")
     void deleteAllByEmail(@Param("email") String email);
 
+    @Query("SELECT distinct ns FROM NotificationSetting ns WHERE ns.type = :type")
+    List<NotificationSetting> findAllByType(@Param("type") String type);
 }

@@ -1,6 +1,6 @@
 package com.rip.notification_service.repository;
 
-import com.example.data_fetching_service.model.PlenaryProtocol;
+import com.rip.notification_service.model.PlenaryProtocol;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
