@@ -3,8 +3,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: browsing-service
+  labels:
+    app: browsing-service
+    monitoring: "true"
 spec:
   selector:
     app: browsing-service
   ports:
-    - port: {{ .Values.browsingService.port }}
+    - name: http
+      port: {{ .Values.browsingService.port }}

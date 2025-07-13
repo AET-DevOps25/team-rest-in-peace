@@ -33,7 +33,6 @@ public class ScheduledTasks {
                 today,  // aktualisiertStart
                 null,  // aktualisiertEnd
                 null, // datumStart,
-                null,
                 null,  // dokumentnummer
                 null,  // id
                 null,  // vorgangstyp
