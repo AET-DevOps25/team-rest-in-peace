@@ -28,7 +28,7 @@ public class NotificationSetting {
 
     }
 
-    public NotificationSetting(String party, String email, String type) {
+    public NotificationSetting(String email, String type, String party) {
         this.party = party;
         this.email = email;
         this.type = type;

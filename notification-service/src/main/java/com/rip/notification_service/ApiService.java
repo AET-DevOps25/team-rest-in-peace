@@ -10,9 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -28,13 +27,6 @@ public class ApiService {
 
     @Autowired
     private EmailService emailService;
-
-
-    @Value("${client.base.url}")
-    private String clientBaseUrl;
-
-    @Value("${client.unsubscribe.url}")
-    private String clientUnsubscribeBaseUrl;
 
 
     public record Result(boolean success, String errorMessage) {
@@ -93,28 +85,59 @@ public class ApiService {
 
         buildAndSendNotificationPlenaryProtocol(plenaryProtocolIds);
 
+        List<Person> distinctSpeakers = personRepository.findDistinctPersonsByPlenaryProtocolIds(plenaryProtocolIds);
+
+        buildAndSendNotificationParty(distinctSpeakers.stream().map(Person::getParty).distinct().collect(Collectors.toList()));
+
+        buildAndSendNotificationPerson(distinctSpeakers);
+
         return new Result(true, null);
     }
 
     public void buildAndSendNotificationPlenaryProtocol(List<Integer> plenaryProtocolIds) {
         List<NotificationSetting> notificationSettings = notificationSettingRepository.findAllByType("PLENARY_PROTOCOL");
-        logger.info("Notification Plenary Protocols found: " + notificationSettings.size());
         notificationSettings.stream().map(NotificationSetting::getEmail).distinct().forEach(email ->
         {
-            String unsubscribeLink = clientUnsubscribeBaseUrl + "?email=" + email;
             try {
-                emailService.sendPlenaryProtocolNotification(email, plenaryProtocolIds.size(), clientBaseUrl, unsubscribeLink);
+                emailService.sendPlenaryProtocolNotification(email, plenaryProtocolIds.size());
+                logger.info("Plenary protocol notification sent to " + email);
             } catch (Exception e) {
-                logger.error("Email Error: " + e.getMessage());
+                logger.error("Email Error for Plenary protocol notification: " + e.getMessage());
             }
         });
     }
 
-    public void buildAndSendNotificationParty(List<Integer> plenaryProtocolIds) {
-        // TODO: Implement
+    public void buildAndSendNotificationParty(List<String> partiesToNotify) {
+        List<NotificationSetting> notificationSettings = notificationSettingRepository.findAllByType("PARTY");
+        notificationSettings
+                .stream()
+                .filter(notificationSetting -> partiesToNotify.contains(notificationSetting.getParty()))
+                .collect(Collectors.groupingBy(NotificationSetting::getEmail))
+                .forEach((email, groupedNotificationSettings) -> {
+                            Set<String> distinctParties = groupedNotificationSettings.stream().map(NotificationSetting::getParty).collect(Collectors.toSet());
+                            try {
+                                emailService.sendPartyNotification(email, distinctParties);
+                                logger.info("Party notification sent to " + email);
+                            } catch (Exception e) {
+                                logger.error("Email Error for Party notification: " + e.getMessage());
+                            }
+                        }
+                );
     }
 
-    public void buildAndSendNotificationPerson(List<Integer> plenaryProtocolIds) {
-        // TODO: Implement
+    public void buildAndSendNotificationPerson(List<Person> speakers) {
+        List<NotificationSetting> notificationSettings = notificationSettingRepository.findAllByType("PERSON");
+        notificationSettings
+                .stream()
+                .filter(notificationSetting -> speakers.contains(notificationSetting.getPerson()))
+                .collect(Collectors.groupingBy(NotificationSetting::getEmail)).forEach((email, groupedNotificationSettings) -> {
+                    Set<Person> speakersByEmail = groupedNotificationSettings.stream().map(NotificationSetting::getPerson).distinct().collect(Collectors.toSet());
+                    try {
+                        emailService.sendPersonNotification(email, speakersByEmail);
+                        logger.info("Person notification sent to " + email);
+                    } catch (Exception e) {
+                        logger.error("Email Error for Person notification: " + e.getMessage());
+                    }
+                });
     }
 }
