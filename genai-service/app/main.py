@@ -105,6 +105,7 @@ class CombinedRequest(BaseModel):
 
 class ProcessSpeechesRequest(BaseModel):
     speech_ids: List[int]
+    plenary_id: int
 
 
 class SummaryResponse(BaseModel):
@@ -176,11 +177,11 @@ def summarize_and_embed(request: CombinedRequest):
 
 @app.post("/process-speeches", status_code=202)
 async def process_speeches(request: ProcessSpeechesRequest):
-    asyncio.create_task(process_speeches_task(request.speech_ids))
+    asyncio.create_task(process_speeches_task(request.speech_ids, request.plenary_id))
     return {"message": "Speech processing started"}
 
 
-async def process_speeches_task(speech_ids: List[int]):
+async def process_speeches_task(speech_ids: List[int], plenary_id: int):
     """Process speeches by IDs: fetch from DB, generate summaries and embeddings, then update DB"""
     if not speech_ids:
         raise HTTPException(status_code=400, detail="speech_ids cannot be empty")
@@ -234,6 +235,68 @@ async def process_speeches_task(speech_ids: List[int]):
 
     except Exception as e:
         logger.error(f"Database connection failed: {str(e)}")
+
+    finally:
+        if conn:
+            await conn.close()
+
+    # After all speeches are processed, generate plenary summary
+    if processed_count > 0:
+        logger.info(f"All speeches processed. Generating plenary summary for protocol {plenary_id}")
+        await generate_plenary_summary(plenary_id)
+
+
+async def generate_plenary_summary(plenary_id: int):
+    """Generate and save a summary of the entire plenary protocol based on speech summaries"""
+    conn = None
+
+    try:
+        conn = await get_db_connection()
+
+        # Get all speech summaries for this plenary protocol
+        summaries_query = """
+            SELECT s.text_summary, p.first_name, p.last_name, p.party, ai.name as agenda_item
+            FROM speech s
+            JOIN person p ON s.person_id = p.id
+            JOIN agenda_item ai ON s.agenda_item_id = ai.id
+            WHERE ai.plenary_protocol_id = $1
+            AND s.text_summary IS NOT NULL
+            ORDER BY ai.id, s.id
+        """
+
+        speech_summaries = await conn.fetch(summaries_query, plenary_id)
+
+        if not speech_summaries:
+            logger.warning(f"No speech summaries found for plenary {plenary_id}")
+            return
+
+        # Combine all speech summaries into one text
+        combined_summaries = []
+        for record in speech_summaries:
+            speaker = f"{record['first_name']} {record['last_name']} ({record['party']})"
+            agenda_item = record['agenda_item']
+            summary = record['text_summary']
+            combined_summaries.append(f"[{agenda_item}] {speaker}: {summary}")
+
+        combined_text = "\n\n".join(combined_summaries)
+
+        plenary_prompt = PROMPTS["plenary_summary"].format(text=combined_text)
+
+        summary_result = llm.invoke(plenary_prompt)
+        plenary_summary = summary_result.content
+
+        # Update the plenary_protocol table with the summary
+        update_query = """
+            UPDATE plenary_protocol 
+            SET summary = $1 
+            WHERE id = $2
+        """
+        await conn.execute(update_query, plenary_summary, plenary_id)
+
+        logger.info(f"Generated plenary summary for protocol {plenary_id}")
+
+    except Exception as e:
+        logger.error(f"Error generating plenary summary for {plenary_id}: {str(e)}")
 
     finally:
         if conn:
