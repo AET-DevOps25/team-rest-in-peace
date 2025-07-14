@@ -43,6 +43,30 @@ const api = {
 
     return res.json();
   },
+  getPlenaryProtocolName: async (id: number): Promise<string> => {
+    const res = await fetch(
+      `${BROWSING_BASE_URL}/plenary-protocols/${id}/name`
+    );
+
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch plenary protocol name: ${res.status} ${res.statusText}`
+      );
+    }
+
+    return res.text(); // because it's a plain string response
+  },
+  getSpeakerName: async (id: number): Promise<string> => {
+    const res = await fetch(`${BROWSING_BASE_URL}/speaker/${id}/name`);
+
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch speaker name: ${res.status} ${res.statusText}`
+      );
+    }
+
+    return res.text();
+  },
 };
 
 interface SpeechStoreState {
@@ -62,6 +86,8 @@ interface SpeechStoreState {
       plenaryProtocolId?: number;
     }
   ) => Promise<void>;
+  getPlenaryProtocolName: (id: number) => Promise<string>;
+  getSpeakerName: (id: number) => Promise<string>;
 }
 
 const useSpeechStore = create<SpeechStoreState>((set) => ({
@@ -88,6 +114,20 @@ const useSpeechStore = create<SpeechStoreState>((set) => ({
         error: error instanceof Error ? error.message : String(error),
         loading: false,
       });
+    }
+  },
+  getPlenaryProtocolName: async (id: number) => {
+    try {
+      return await api.getPlenaryProtocolName(id);
+    } catch (error: unknown) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
+  },
+  getSpeakerName: async (id: number) => {
+    try {
+      return await api.getSpeakerName(id);
+    } catch (error: unknown) {
+      throw new Error(error instanceof Error ? error.message : String(error));
     }
   },
 }));
