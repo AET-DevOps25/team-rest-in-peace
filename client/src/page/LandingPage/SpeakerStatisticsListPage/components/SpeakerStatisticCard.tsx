@@ -3,14 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatWords, getPartyColor } from "@/global";
 import type { SpeakerStatisticDto } from "@/types/SpeakerStatisticDto";
 
+interface SpeakerStatisticCardProps {
+  speaker: SpeakerStatisticDto;
+  onClick?: () => void;
+}
+
 const SpeakerStatisticCard = ({
   speaker,
-}: {
-  speaker: SpeakerStatisticDto;
-}) => {
+  onClick,
+}: SpeakerStatisticCardProps) => {
   return (
     <Card
       key={speaker.personId}
+      onClick={onClick}
       className="hover:shadow-md transition-shadow cursor-pointer justify-between"
     >
       <CardHeader>
