@@ -1,34 +1,52 @@
 services:
   db:
+    image: ghcr.io/aet-devops25/team-rest-in-peace/database:latest
     build: database
     container_name: db
     ports:
       - "5432:5432"
     env_file:
       - .env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      start_period: 10s
   genai-service:
+    image: ghcr.io/aet-devops25/team-rest-in-peace/genai-service:latest
     build: genai-service
     container_name: genai-service
     ports:
       - "8000:8000"
     env_file:
       - .env
+    healthcheck:
+      test: [ "CMD-SHELL", "python3 app/healthcheck.py" ]
+      start_period: 5s
+    depends_on:
+      - db
 
   data-fetching-service:
+    image: ghcr.io/aet-devops25/team-rest-in-peace/data-fetching-service:latest
     build: data-fetching-service
     container_name: data-fetching-service
     env_file:
       - .env
     ports:
       - "8080:8080"
+    healthcheck:
+      test: "curl -f localhost:8080/health"
+      start_period: 5s
     depends_on:
       - db
 
   browsing-service:
+    image: ghcr.io/aet-devops25/team-rest-in-peace/browsing-service:latest
     build: browsing-service
     container_name: browsing-service
     ports:
-      - "8081:8081"
+      - "8081:8081"#
+    healthcheck:
+      test: "curl -f localhost:8081/health"
+      start_period: 5s
     env_file:
       - .env
 
@@ -39,12 +57,16 @@ services:
       - "3000:3000"
 
   notification-service:
+    image: ghcr.io/aet-devops25/team-rest-in-peace/notification-service:latest
     build: notification-service
     container_name: notification-service
     ports:
       - "8082:8082"
     env_file:
       - .env
+    healthcheck:
+      test: "curl -f localhost:8082/health"
+      start_period: 5s
   nginx:
     image: nginx:latest
     container_name: nginx
@@ -58,3 +80,31 @@ services:
       - data-fetching-service
       - browsing-service
       - notification-service
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - genai-service
+      - data-fetching-service
+      - browsing-service
+      - notification-service
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  grafana-storage:
+
+

@@ -1,0 +1,7 @@
+# Include base requirements
+-r requirements.txt
+
+# Development and testing dependencies
+pytest
+pytest-asyncio
+black

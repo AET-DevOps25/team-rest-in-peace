@@ -185,7 +185,6 @@ develop-eggs/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -378,5 +377,9 @@ sketch
 #
 # Recommended template: Node.gitignore
 terraform/.terraform.lock.hcl
+
+
+
+**/values-prod.yaml
 
 *.pem

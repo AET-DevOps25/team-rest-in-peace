@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: genai-service
+  labels:
+    app: genai-service
+    monitoring: "true"
+spec:
+  selector:
+    app: genai-service
+  ports:
+    - name: http
+      port: {{ .Values.genaiService.port }}
+      protocol: TCP
+      targetPort: 8000
