@@ -6,7 +6,6 @@ import PlenarySessionListPage from "./page/LandingPage/PlenarySessionListPage/Pl
 import CategoryLayout from "./components/layouts/CategoryLayout.tsx";
 import SpeakerStatisticsListPage from "./page/LandingPage/SpeakerStatisticsListPage/SpeakerStatisticsListPage.tsx";
 import SpeechListPage from "./page/LandingPage/SpeechListPage/SpeechListPage.tsx";
-import ProtocollSpeechListPage from "./page/ProtocollSpeechListPage/ProtocollSpeechListPage.tsx";
 import GenerallLayout from "./components/layouts/GenerallLayout.tsx";
 
 const router = createBrowserRouter([
