@@ -58,8 +58,12 @@ public class Controller {
     @GetMapping("/speeches")
     public Page<SpeechDto> getAllSpeeches(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String party,
+            @RequestParam(required = false) Integer speakerId,
+            @RequestParam(required = false) Integer plenaryProtocolId
     ) {
-        return browsingService.getAllSpeechDetails(PageRequest.of(page, size));
+        Pageable pageable = PageRequest.of(page, size);
+        return browsingService.getAllSpeechDetails(pageable, party, speakerId, plenaryProtocolId);
     }
 }
