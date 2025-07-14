@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -26,7 +28,7 @@ public class Controller {
             @RequestParam(name = "f.vorgangstyp", required = false) String vorgangstyp,
             @RequestParam(name = "f.vorgangstyp_notation", required = false) String vorgangstypNotation,
             @RequestParam(name = "f.wahlperiode", required = false) String wahlperiode,
-            @RequestParam(name = "f.zuordnung", required = false) String zuordnung,
+//            @RequestParam(name = "f.zuordnung", required = false) String zuordnung,
             @RequestParam(name = "cursor", required = false) String cursor,
             @RequestParam(name = "format", required = false, defaultValue = "json") String format) { // Default to json as per your request
 
@@ -35,9 +37,14 @@ public class Controller {
                 datumStart, datumEnd,
                 dokumentnummer, id,
                 vorgangstyp, vorgangstypNotation,
-                wahlperiode, zuordnung,
+                wahlperiode,
                 cursor, format
         );
 
+    }
+
+    @GetMapping("/health")
+    public Map<String, Boolean> health() {
+        return Collections.singletonMap("healthy", true);
     }
 }

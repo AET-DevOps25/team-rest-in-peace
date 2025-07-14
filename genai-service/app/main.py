@@ -1,6 +1,12 @@
 import os
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+import time
+
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, Response
 from pydantic import BaseModel
+from typing import List
+
+import asyncpg
+from fastapi import FastAPI, HTTPException
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from typing import List
@@ -8,6 +14,15 @@ from app.config import MODEL_CONFIG, PROMPTS
 import asyncpg
 import asyncio
 import logging
+from prometheus_client import (
+    start_http_server,
+    Summary,
+    Counter,
+    Gauge,
+    generate_latest,
+    CONTENT_TYPE_LATEST,
+)
+from starlette.responses import Response as StarletteResponse
 
 app = FastAPI(title="German Plenary Protocol API", version="1.0.0")
 
@@ -18,29 +33,35 @@ NLP_DB_HOST = os.getenv("DB_HOST", "localhost")
 NLP_DB_PORT = os.getenv("DB_PORT", "5432")
 NLP_DB_NAME = os.getenv("DB_NAME", "postgres")
 
+# Basic metrics
+REQUEST_COUNT = Counter("http_requests_total", "Total HTTP requests")
+REQUEST_LATENCY = Summary(
+    "http_request_latency_seconds", "HTTP request latency in seconds"
+)
+
 if not NLP_API_KEY:
     raise ValueError("Please set the NLP_GENAI_API_KEY in your environment variables.")
 
 if not NLP_DB_USERNAME or not NLP_DB_PASSWORD:
-    raise ValueError("Please set NLP_DB_USERNAME and NLP_DB_PASSWORD in your environment variables.")
+    raise ValueError(
+        "Please set NLP_DB_USERNAME and NLP_DB_PASSWORD in your environment variables."
+    )
 
 # Initialize models
 llm = ChatGoogleGenerativeAI(
-    model=MODEL_CONFIG["llm_model"],
-    google_api_key=NLP_API_KEY
+    model=MODEL_CONFIG["llm_model"], google_api_key=NLP_API_KEY
 )
 
 embeddings = GoogleGenerativeAIEmbeddings(
-    model=MODEL_CONFIG["embedding_model"],
-    google_api_key=NLP_API_KEY
+    model=MODEL_CONFIG["embedding_model"], google_api_key=NLP_API_KEY
 )
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 # Database connection
 async def get_db_connection():
@@ -49,8 +70,24 @@ async def get_db_connection():
         password=NLP_DB_PASSWORD,
         host=NLP_DB_HOST,
         port=NLP_DB_PORT,
-        database=NLP_DB_NAME
+        database=NLP_DB_NAME,
     )
+
+
+@app.middleware("http")
+async def prometheus_middleware(request: Request, call_next):
+    REQUEST_COUNT.inc()
+    start_time = time.time()
+    response = await call_next(request)
+    latency = time.time() - start_time
+    REQUEST_LATENCY.observe(latency)
+    return response
+
+
+@app.get("/metrics")
+def metrics():
+    data = generate_latest()
+    return StarletteResponse(content=data, media_type=CONTENT_TYPE_LATEST)
 
 
 # Request/Response Models
@@ -98,7 +135,9 @@ def summarize_protocol(request: SummaryRequest):
         return SummaryResponse(summary=result.content)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Summary generation failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Summary generation failed: {str(e)}"
+        )
 
 
 @app.post("/embedding", response_model=EmbeddingResponse)
@@ -110,7 +149,9 @@ def embed_text(request: EmbeddingRequest):
         return EmbeddingResponse(embedding=embedding_vector)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Embedding generation failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Embedding generation failed: {str(e)}"
+        )
 
 
 @app.post("/combined", response_model=CombinedResponse)
@@ -125,18 +166,19 @@ def summarize_and_embed(request: CombinedRequest):
         # Generate embedding for the summary
         embedding_vector = embeddings.embed_query(summary)
 
-        return CombinedResponse(
-            summary=summary,
-            embedding=embedding_vector
-        )
+        return CombinedResponse(summary=summary, embedding=embedding_vector)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Combined processing failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Combined processing failed: {str(e)}"
+        )
+
 
 @app.post("/process-speeches", status_code=202)
 async def process_speeches(request: ProcessSpeechesRequest):
     asyncio.create_task(process_speeches_task(request.speech_ids))
     return {"message": "Speech processing started"}
+
 
 async def process_speeches_task(speech_ids: List[int]):
     """Process speeches by IDs: fetch from DB, generate summaries and embeddings, then update DB"""
@@ -165,8 +207,8 @@ async def process_speeches_task(speech_ids: List[int]):
                     failed_speeches.append(speech_id)
                     continue
 
-                text_plain = speech_record['text_plain']
-                if not text_plain or text_plain.strip() == '':
+                text_plain = speech_record["text_plain"]
+                if not text_plain or text_plain.strip() == "":
                     failed_speeches.append(speech_id)
                     continue
 
@@ -175,7 +217,7 @@ async def process_speeches_task(speech_ids: List[int]):
                 summary = summary_result.content
 
                 embedding_vector = embeddings.embed_query(summary)
-                embedding_str = '[' + ','.join(map(str, embedding_vector)) + ']'
+                embedding_str = "[" + ",".join(map(str, embedding_vector)) + "]"
 
                 update_query = """
                     UPDATE speech 
@@ -200,4 +242,5 @@ async def process_speeches_task(speech_ids: List[int]):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
