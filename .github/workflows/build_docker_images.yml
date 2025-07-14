@@ -19,7 +19,6 @@ jobs:
             browsing-service,
             client,
             notification-service,
-            client,
           ]
     steps:
       - name: Checkout
