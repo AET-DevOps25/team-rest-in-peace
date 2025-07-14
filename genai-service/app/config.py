@@ -19,7 +19,6 @@ Verwende einen sachlichen, informativen Ton. Die Zusammenfassung sollte die län
 Text: {text}
 
 Zusammenfassung:""",
-
     "plenary_summary": """Du bist ein Experte für die Analyse deutscher Parlamentsprotokolle.
 Basierend auf den folgenden Redebeiträgen der Plenarsitzung, fasse die gesamte Sitzung in genau 2 Sätzen knapp zusammen.
 
@@ -29,5 +28,5 @@ Zusammenfassungen der Redebeiträge:
 
 {text}
 
-Zusammenfassung der Plenarsitzung:"""
+Zusammenfassung der Plenarsitzung:""",
 }

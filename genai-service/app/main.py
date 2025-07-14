@@ -242,7 +242,9 @@ async def process_speeches_task(speech_ids: List[int], plenary_id: int):
 
     # After all speeches are processed, generate plenary summary
     if processed_count > 0:
-        logger.info(f"All speeches processed. Generating plenary summary for protocol {plenary_id}")
+        logger.info(
+            f"All speeches processed. Generating plenary summary for protocol {plenary_id}"
+        )
         await generate_plenary_summary(plenary_id)
 
 
@@ -273,9 +275,11 @@ async def generate_plenary_summary(plenary_id: int):
         # Combine all speech summaries into one text
         combined_summaries = []
         for record in speech_summaries:
-            speaker = f"{record['first_name']} {record['last_name']} ({record['party']})"
-            agenda_item = record['agenda_item']
-            summary = record['text_summary']
+            speaker = (
+                f"{record['first_name']} {record['last_name']} ({record['party']})"
+            )
+            agenda_item = record["agenda_item"]
+            summary = record["text_summary"]
             combined_summaries.append(f"[{agenda_item}] {speaker}: {summary}")
 
         combined_text = "\n\n".join(combined_summaries)
