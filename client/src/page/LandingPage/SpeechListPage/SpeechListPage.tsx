@@ -2,25 +2,62 @@ import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import useSpeechStore from "@/store/speechStore";
 import { useEffect } from "react";
 import SpeechCard from "./components/SpeechCard";
+import PartyFilterSection from "./components/PartyFilterSection";
+import { useParams, useSearchParams } from "react-router";
+import { ArrowLeft } from "lucide-react";
 
 const SpeechListPage = () => {
   const { speeches, loading, error, fetchSpeeches, page, totalPages } =
     useSpeechStore();
 
+  const [searchParams] = useSearchParams();
+  const party = searchParams.get("party");
+  const { speakerId } = useParams();
+  const { plenaryProtocolId } = useParams();
+
+  const speakerIdParsed = speakerId ? parseInt(speakerId, 10) : undefined;
+  const plenaryProtocolIdParsed = plenaryProtocolId
+    ? parseInt(plenaryProtocolId, 10)
+    : undefined;
+
   useEffect(() => {
-    fetchSpeeches();
-  }, [fetchSpeeches]);
+    fetchSpeeches(0, 10, false, {
+      party: party || undefined,
+      speakerId: speakerIdParsed,
+      plenaryProtocolId: plenaryProtocolIdParsed,
+    });
+  }, [fetchSpeeches, party, speakerIdParsed, plenaryProtocolIdParsed]);
 
   const observerRef = useInfiniteScroll({
     loading,
     hasMore: page + 1 < totalPages,
-    onLoadMore: () => fetchSpeeches(page + 1, 10, true),
+    onLoadMore: () =>
+      fetchSpeeches(page + 1, 10, true, {
+        party: party || undefined,
+        speakerId: speakerIdParsed,
+        plenaryProtocolId: plenaryProtocolIdParsed,
+      }),
   });
 
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="flex flex-col gap-6 w-full">
+      {(speakerId || plenaryProtocolId) && (
+        <div className="mb-4">
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Zurück zur Übersicht
+          </a>
+          <h1 className="text-3xl font-bold mb-2">
+            {speakerId ? `Reden` : `Protokolle der Sitzung`}
+          </h1>
+        </div>
+      )}
+      {!speakerId && <PartyFilterSection />}
       {speeches.map((s, i) => (
         <SpeechCard key={`${s.firstName}-${s.lastName}-${i}`} speech={s} />
       ))}
