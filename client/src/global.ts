@@ -1,6 +1,9 @@
 export const BROWSING_BASE_URL =
   import.meta.env.VITE_BROWSING_BASE_URL || "http://localhost:8081";
 
+export const NOTIFICATIONS_BASE_URL =
+  import.meta.env.VITE_NOTIFICATIONS_BASE_URL || "http://localhost:8082";
+
 export function getPartyColor(party: string) {
   const colors = {
     SPD: "bg-red-500",
