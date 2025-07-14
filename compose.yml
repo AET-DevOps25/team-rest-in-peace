@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       start_period: 10s
   genai-service:
     image: ghcr.io/aet-devops25/team-rest-in-peace/genai-service:latest
@@ -19,7 +19,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD-SHELL", "python3 app/healthcheck.py" ]
+      test: ["CMD-SHELL", "python3 app/healthcheck.py"]
       start_period: 5s
     depends_on:
       - db
@@ -43,7 +43,7 @@ services:
     build: browsing-service
     container_name: browsing-service
     ports:
-      - "8081:8081"#
+      - "8081:8081"
     healthcheck:
       test: "curl -f localhost:8081/health"
       start_period: 5s
@@ -51,6 +51,7 @@ services:
       - .env
 
   client:
+    image: ghcr.io/aet-devops25/team-rest-in-peace/client:latest
     build: client
     container_name: client
     ports:
@@ -106,5 +107,3 @@ services:
 
 volumes:
   grafana-storage:
-
-
