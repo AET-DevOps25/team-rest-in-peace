@@ -38,7 +38,8 @@ browsingService:
 notificationService:
   image: "ghcr.io/aet-devops25/team-rest-in-peace/notification-service:latest"
   port: 8082
-  mailProviderApiKey: "your_mail_provider_api_key"
+  mail:
+    password: "your_mail_password"
   db:
     username: "notification_user"
     password: "notification_password"
