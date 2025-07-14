@@ -3,18 +3,36 @@ import type { SpeechDto } from "@/types/SpeechDto";
 import { create } from "zustand";
 
 const api = {
-  // existing endpoints...
-
   getSpeeches: async (
     page = 0,
-    size = 10
+    size = 10,
+    filters?: {
+      party?: string;
+      speakerId?: number;
+      plenaryProtocolId?: number;
+    }
   ): Promise<{
     content: SpeechDto[];
     totalPages: number;
     totalElements: number;
   }> => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+
+    if (filters?.party) {
+      params.append("party", filters.party);
+    }
+    if (filters?.speakerId !== undefined) {
+      params.append("speakerId", filters.speakerId.toString());
+    }
+    if (filters?.plenaryProtocolId !== undefined) {
+      params.append("plenaryProtocolId", filters.plenaryProtocolId.toString());
+    }
+
     const res = await fetch(
-      `${BROWSING_BASE_URL}/speeches?page=${page}&size=${size}`
+      `${BROWSING_BASE_URL}/speeches?${params.toString()}`
     );
 
     if (!res.ok) {
@@ -37,7 +55,12 @@ interface SpeechStoreState {
   fetchSpeeches: (
     page?: number,
     size?: number,
-    append?: boolean
+    append?: boolean,
+    filters?: {
+      party?: string;
+      speakerId?: number;
+      plenaryProtocolId?: number;
+    }
   ) => Promise<void>;
 }
 
@@ -49,10 +72,10 @@ const useSpeechStore = create<SpeechStoreState>((set) => ({
   size: 10,
   totalPages: 0,
 
-  fetchSpeeches: async (page = 0, size = 10, append = false) => {
+  fetchSpeeches: async (page = 0, size = 10, append = false, filters) => {
     set({ loading: true, error: null });
     try {
-      const data = await api.getSpeeches(page, size);
+      const data = await api.getSpeeches(page, size, filters);
       set((state) => ({
         speeches: append ? [...state.speeches, ...data.content] : data.content,
         page,

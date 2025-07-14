@@ -61,31 +61,37 @@ public interface SpeechRepository extends JpaRepository<Speech, Integer> {
     Page<SpeakerStatisticDto> findAllSpeakerStatistics(Pageable pageable);
 
     @Query(value = """
-        SELECT
-            p.party as party,
-            pp.date as protocolDate,
-            ARRAY_LENGTH(REGEXP_SPLIT_TO_ARRAY(s.text_plain, '\\s+'), 1) as wordCount,
-            p.first_name as firstName,
-            p.last_name as lastName,
-            ai.title as agendaItemTitle,
-            s.text_summary as textSummary,
-            s.text_plain as textPlain,
-            CONCAT(pp.document_number, '. Sitzung des ', pp.election_period, '. Deutschen ',
-                   CASE WHEN pp.publisher ILIKE 'BR' THEN 'Bundesrat' ELSE 'Bundestag' END) as protocolName
-        FROM speech s
-        JOIN person p ON s.person_id = p.id
-        JOIN agenda_item ai ON s.agenda_item_id = ai.id
-        JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
-        ORDER BY pp.date DESC NULLS LAST,
-                 ARRAY_LENGTH(REGEXP_SPLIT_TO_ARRAY(s.text_plain, '\\s+'), 1) DESC
-        """,
+    SELECT
+        p.party as party,
+        pp.date as protocolDate,
+        ARRAY_LENGTH(REGEXP_SPLIT_TO_ARRAY(s.text_plain, '\\s+'), 1) as wordCount,
+        p.first_name as firstName,
+        p.last_name as lastName,
+        ai.title as agendaItemTitle,
+        s.text_summary as textSummary,
+        s.text_plain as textPlain,
+        CONCAT(pp.document_number, '. Sitzung des ', pp.election_period, '. Deutschen ',
+               CASE WHEN pp.publisher ILIKE 'BR' THEN 'Bundesrat' ELSE 'Bundestag' END) as protocolName
+    FROM speech s
+    JOIN person p ON s.person_id = p.id
+    JOIN agenda_item ai ON s.agenda_item_id = ai.id
+    JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
+    WHERE (:party IS NULL OR p.party = :party)
+      AND (:speakerId IS NULL OR p.id = :speakerId)
+      AND (:plenaryProtocolId IS NULL OR pp.id = :plenaryProtocolId)
+    ORDER BY pp.date DESC NULLS LAST,
+             ARRAY_LENGTH(REGEXP_SPLIT_TO_ARRAY(s.text_plain, '\\s+'), 1) DESC
+    """,
             countQuery = """
-        SELECT COUNT(*)
-        FROM speech s
-        JOIN person p ON s.person_id = p.id
-        JOIN agenda_item ai ON s.agenda_item_id = ai.id
-        JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
-        """,
+    SELECT COUNT(*)
+    FROM speech s
+    JOIN person p ON s.person_id = p.id
+    JOIN agenda_item ai ON s.agenda_item_id = ai.id
+    JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
+    WHERE (:party IS NULL OR p.party = :party)
+      AND (:speakerId IS NULL OR p.id = :speakerId)
+      AND (:plenaryProtocolId IS NULL OR pp.id = :plenaryProtocolId)
+    """,
             nativeQuery = true)
-    Page<SpeechDto> findAllSpeechDetails(Pageable pageable);
+    Page<SpeechDto> findAllSpeechDetailsFiltered(Pageable pageable, String party, Integer speakerId, Integer plenaryProtocolId);
 }
