@@ -1,6 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router";
 import StatisticsHeader from "./components/StatisticsHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import GenerallLayout from "@/components/layouts/GenerallLayout";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const LandingPage = () => {
           }}
         />
       </div>
-      <div className="flex flex-col min-w-0 max-w-[100rem] w-full h-full mx-auto p-4 gap-4">
+      <GenerallLayout>
         <div className="flex flex-col items-center text-center p-4 gap-2">
           <h1 className="text-5xl font-bold bg-gradient-to-r via-cyan-600 from-violet-800 to-blue-800 min-h-14 bg-clip-text text-transparent">
             Bundestag Reden Suche
@@ -95,7 +96,7 @@ const LandingPage = () => {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
+      </GenerallLayout>
     </div>
   );
 };
