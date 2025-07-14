@@ -12,5 +12,3 @@ spec:
   ports:
     - name: http
       port: {{ .Values.genaiService.port }}
-      protocol: TCP
-      targetPort: 8000
