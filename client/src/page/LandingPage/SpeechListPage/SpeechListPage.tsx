@@ -1,14 +1,22 @@
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import useSpeechStore from "@/store/speechStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import SpeechCard from "./components/SpeechCard";
 import PartyFilterSection from "./components/PartyFilterSection";
 import { useParams, useSearchParams } from "react-router";
 import { ArrowLeft } from "lucide-react";
 
 const SpeechListPage = () => {
-  const { speeches, loading, error, fetchSpeeches, page, totalPages } =
-    useSpeechStore();
+  const {
+    speeches,
+    loading,
+    error,
+    fetchSpeeches,
+    page,
+    totalPages,
+    getPlenaryProtocolName,
+    getSpeakerName,
+  } = useSpeechStore();
 
   const [searchParams] = useSearchParams();
   const party = searchParams.get("party");
@@ -20,13 +28,32 @@ const SpeechListPage = () => {
     ? parseInt(plenaryProtocolId, 10)
     : undefined;
 
+  const [title, setTitle] = useState(
+    speakerId ? `Reden` : `Protokolle der Sitzung`
+  );
+
   useEffect(() => {
     fetchSpeeches(0, 10, false, {
       party: party || undefined,
       speakerId: speakerIdParsed,
       plenaryProtocolId: plenaryProtocolIdParsed,
     });
-  }, [fetchSpeeches, party, speakerIdParsed, plenaryProtocolIdParsed]);
+
+    if (plenaryProtocolIdParsed) {
+      getPlenaryProtocolName(plenaryProtocolIdParsed).then(setTitle);
+    }
+
+    if (speakerIdParsed) {
+      getSpeakerName(speakerIdParsed).then(setTitle);
+    }
+  }, [
+    fetchSpeeches,
+    party,
+    speakerIdParsed,
+    plenaryProtocolIdParsed,
+    getPlenaryProtocolName,
+    getSpeakerName,
+  ]);
 
   const observerRef = useInfiniteScroll({
     loading,
@@ -52,9 +79,7 @@ const SpeechListPage = () => {
             <ArrowLeft className="w-4 h-4" />
             Zurück zur Übersicht
           </a>
-          <h1 className="text-3xl font-bold mb-2">
-            {speakerId ? `Reden` : `Protokolle der Sitzung`}
-          </h1>
+          <h1 className="text-3xl font-bold">{title}</h1>
         </div>
       )}
       {!speakerId && <PartyFilterSection />}

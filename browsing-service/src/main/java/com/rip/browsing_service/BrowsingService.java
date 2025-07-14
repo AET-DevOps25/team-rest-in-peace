@@ -125,4 +125,20 @@ public class BrowsingService {
     public Page<SpeechDto> getAllSpeechDetails(Pageable pageable, String party, Integer speakerId, Integer plenaryProtocolId) {
         return speechRepository.findAllSpeechDetailsFiltered(pageable, party, speakerId, plenaryProtocolId);
     }
+
+    public String getPlenaryProtocolName(int id) {
+        PlenaryProtocol protocol = plenaryProtocolRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Plenary protocol not found with id: " + id));
+
+        return createProtocolName(protocol);
+    }
+
+public String getSpeakerName(int id) {
+    return personRepository.findById(id)
+            .map(person -> {
+                String party = person.getParty() != null ? person.getParty() : "Unbekannt";
+                return person.getFirstName() + " " + person.getLastName() + " (" + party + ")";
+            })
+            .orElseThrow(() -> new NoSuchElementException("Person not found with id: " + id));
+}
 }
