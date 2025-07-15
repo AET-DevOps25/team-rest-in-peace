@@ -19,7 +19,7 @@ interface NotificationModalProps {
   type: "session" | "speaker" | "party";
   speaker?: {
     name: string;
-    id: string;
+    id: number;
     party?: string;
   };
   party?: string;

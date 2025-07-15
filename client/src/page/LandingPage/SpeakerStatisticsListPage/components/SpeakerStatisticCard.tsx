@@ -2,6 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatWords, getPartyColor } from "@/global";
 import type { SpeakerStatisticDto } from "@/types/SpeakerStatisticDto";
+import { useState } from "react";
+import NotificationModal from "../../components/NotificationModal";
+import { Button } from "@/components/ui/button";
+import { Bell } from "lucide-react";
 
 interface SpeakerStatisticCardProps {
   speaker: SpeakerStatisticDto;
@@ -12,10 +16,16 @@ const SpeakerStatisticCard = ({
   speaker,
   onClick,
 }: SpeakerStatisticCardProps) => {
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+
   return (
     <Card
       key={speaker.personId}
-      onClick={onClick}
+      onClick={() => {
+        if (!showNotificationModal && onClick) {
+          onClick();
+        }
+      }}
       className="hover:shadow-md transition-shadow cursor-pointer justify-between"
     >
       <CardHeader>
@@ -23,7 +33,21 @@ const SpeakerStatisticCard = ({
           <div className="flex-1">
             <CardTitle className="text-lg">
               <div className="flex justify-between items-center">
-                {speaker.firstName} {speaker.lastName}
+                <div className="flex flex-row items-center gap-2">
+                  {speaker.firstName} {speaker.lastName}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size={"sm"}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowNotificationModal(true);
+                      }}
+                    >
+                      <Bell className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
                 <div className="flex items-center gap-2">
                   <Badge
                     className={`${getPartyColor(
@@ -58,6 +82,16 @@ const SpeakerStatisticCard = ({
           </div>
         </div>
       </CardContent>
+      <NotificationModal
+        isOpen={showNotificationModal}
+        onClose={() => setShowNotificationModal(false)}
+        type="speaker"
+        speaker={{
+          name: `${speaker.firstName} ${speaker.lastName}`,
+          id: speaker.personId,
+          party: speaker.party,
+        }}
+      />
     </Card>
   );
 };
