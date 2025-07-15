@@ -118,26 +118,10 @@ public class ControllerTest {
 
     @Test
     public void testNotify_Success() throws Exception {
-        when(apiService.notifyAll(anyList()))
-                .thenReturn(new ApiService.Result(true, null));
-
         mockMvc.perform(post("/notify")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validNotificationRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
+                .andExpect(status().isAccepted());
     }
 
-    @Test
-    public void testNotify_Failure() throws Exception {
-        when(apiService.notifyAll(anyList()))
-                .thenReturn(new ApiService.Result(false, "Error sending notifications"));
-
-        mockMvc.perform(post("/notify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validNotificationRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.error").value("Error sending notifications"));
-    }
 }

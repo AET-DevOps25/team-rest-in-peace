@@ -1,6 +1,5 @@
 package com.rip.notification_service;
 
-import com.rip.notification_service.dto.SubscriptionRequest;
 import com.rip.notification_service.dto.TestSubscriptionRequest;
 import com.rip.notification_service.model.NotificationSetting;
 import com.rip.notification_service.model.Person;
@@ -13,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,9 +52,9 @@ public class ApiServiceTest {
     public void testAddSubscription_Party_Success() {
         // Arrange
         TestSubscriptionRequest request = new TestSubscriptionRequest()
-            .setEmail("user@example.com")
-            .setType("PARTY")
-            .setParty("Party A");
+                .setEmail("user@example.com")
+                .setType("PARTY")
+                .setParty("Party A");
 
         when(personRepository.findDistinctParties()).thenReturn(Optional.of(testParties));
 
@@ -73,9 +71,9 @@ public class ApiServiceTest {
     public void testAddSubscription_Party_InvalidParty() {
         // Arrange
         TestSubscriptionRequest request = new TestSubscriptionRequest()
-            .setEmail("user@example.com")
-            .setType("PARTY")
-            .setParty("Invalid Party");
+                .setEmail("user@example.com")
+                .setType("PARTY")
+                .setParty("Invalid Party");
 
         when(personRepository.findDistinctParties()).thenReturn(Optional.of(testParties));
 
@@ -92,9 +90,9 @@ public class ApiServiceTest {
     public void testAddSubscription_Person_Success() {
         // Arrange
         TestSubscriptionRequest request = new TestSubscriptionRequest()
-            .setEmail("user@example.com")
-            .setType("PERSON")
-            .setPersonId(1);
+                .setEmail("user@example.com")
+                .setType("PERSON")
+                .setPersonId(1);
 
         when(personRepository.findById(1)).thenReturn(Optional.of(testPerson));
 
@@ -111,9 +109,9 @@ public class ApiServiceTest {
     public void testAddSubscription_Person_InvalidPerson() {
         // Arrange
         TestSubscriptionRequest request = new TestSubscriptionRequest()
-            .setEmail("user@example.com")
-            .setType("PERSON")
-            .setPersonId(999);
+                .setEmail("user@example.com")
+                .setType("PERSON")
+                .setPersonId(999);
 
         when(personRepository.findById(999)).thenReturn(Optional.empty());
 
@@ -130,8 +128,8 @@ public class ApiServiceTest {
     public void testAddSubscription_PlenaryProtocol_Success() {
         // Arrange
         TestSubscriptionRequest request = new TestSubscriptionRequest()
-            .setEmail("user@example.com")
-            .setType("PLENARY_PROTOCOL");
+                .setEmail("user@example.com")
+                .setType("PLENARY_PROTOCOL");
 
         // Act
         ApiService.Result result = apiService.addSubscription(request);
@@ -146,8 +144,8 @@ public class ApiServiceTest {
     public void testAddSubscription_InvalidType() {
         // Arrange
         TestSubscriptionRequest request = new TestSubscriptionRequest()
-            .setEmail("user@example.com")
-            .setType("INVALID_TYPE");
+                .setEmail("user@example.com")
+                .setType("INVALID_TYPE");
 
         // Act
         ApiService.Result result = apiService.addSubscription(request);
@@ -189,7 +187,7 @@ public class ApiServiceTest {
     }
 
     @Test
-    public void testNotifyAll_Success() throws Exception {
+    public void testNotifyAll_Async_Success() throws Exception {
         // Arrange
         List<Integer> plenaryProtocolIds = List.of(1, 2, 3);
         List<Person> speakers = List.of(testPerson);
@@ -212,11 +210,9 @@ public class ApiServiceTest {
         doNothing().when(emailService).sendPersonNotification(anyString(), anySet());
 
         // Act
-        ApiService.Result result = apiService.notifyAll(plenaryProtocolIds);
+        apiService.notifyAllAsync(plenaryProtocolIds);
 
         // Assert
-        assertTrue(result.success());
-        assertNull(result.errorMessage());
         verify(emailService).sendPlenaryProtocolNotification("user1@example.com", 3);
         verify(emailService).sendPartyNotification(eq("user2@example.com"), anySet());
         verify(emailService).sendPersonNotification(eq("user3@example.com"), anySet());

@@ -53,13 +53,8 @@ public class Controller {
 
     @PostMapping("/notify")
     public ResponseEntity<Map<String, Object>> notifyUsers(@Valid @RequestBody NotificationRequest req) {
-        ApiService.Result result = apiService.notifyAll(req.getPlenaryProtocolIds());
-        Map<String, Object> body = new HashMap<>();
-        body.put("success", result.success());
-        if (!result.success()) {
-            body.put("error", result.errorMessage());
-        }
-        return result.success() ? ResponseEntity.ok(body) : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        apiService.notifyAllAsync(req.getPlenaryProtocolIds());
+        return ResponseEntity.accepted().build();
     }
 }
 

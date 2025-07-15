@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
     expose:
-      - "80"
+      - "3000"
 
   db:
     image: ghcr.io/aet-devops25/team-rest-in-peace/database:latest
@@ -91,6 +91,7 @@ services:
       - data-fetching-service
       - browsing-service
       - notification-service
+      - grafana
 
   prometheus:
     image: prom/prometheus
@@ -110,6 +111,9 @@ services:
     container_name: grafana
     expose:
       - "3000"
+    environment:
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/dev/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     depends_on:
       - prometheus
     volumes:
