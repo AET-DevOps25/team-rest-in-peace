@@ -111,6 +111,9 @@ services:
     container_name: grafana
     expose:
       - "3000"
+    environment:
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/dev/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     depends_on:
       - prometheus
     volumes:
