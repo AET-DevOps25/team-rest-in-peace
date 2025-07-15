@@ -27,6 +27,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -34,7 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -48,6 +53,7 @@ import static org.mockito.Mockito.*;
 @Import(E2ETest.TestConfig.class)
 public class E2ETest {
 
+    @EnableAsync
     @TestConfiguration
     static class TestConfig {
         @Bean
@@ -55,7 +61,17 @@ public class E2ETest {
         public EmailService emailService() {
             return Mockito.mock(EmailService.class);
         }
+
+        @Bean
+        public Executor taskExecutor() {
+            ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
+            exec.setCorePoolSize(1);
+            exec.setMaxPoolSize(1);
+            exec.afterPropertiesSet();
+            return exec;
+        }
     }
+
 
     @LocalServerPort
     private int port;
@@ -190,13 +206,15 @@ public class E2ETest {
                 notifyRequest,
                 Map.class);
 
-        assertEquals(200, notifyResponse.getStatusCodeValue());
-        assertTrue((Boolean) notifyResponse.getBody().get("success"));
+        assertEquals(202, notifyResponse.getStatusCodeValue());
 
-        // 5. Verify emails would have been sent (using our mock)
-        verify(emailService, times(1)).sendPartyNotification(eq("user@example.com"), anySet());
-        verify(emailService, times(1)).sendPersonNotification(eq("user@example.com"), anySet());
-
+        await().atMost(5, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    verify(emailService, times(1))
+                            .sendPartyNotification(eq("user@example.com"), anySet());
+                    verify(emailService, times(1))
+                            .sendPersonNotification(eq("user@example.com"), anySet());
+                });
         // 6. Unsubscribe
         ResponseEntity<Map> unsubscribeResponse = restTemplate.exchange(
                 "http://localhost:" + port + "/unsubscribe?email=user@example.com",
