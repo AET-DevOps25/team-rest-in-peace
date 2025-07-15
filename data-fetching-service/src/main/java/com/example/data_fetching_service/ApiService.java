@@ -98,7 +98,7 @@ public class ApiService {
 
                             // Call NLP service to process summaries and embeddings for all speeches
                             if (!speechIds.isEmpty()) {
-                                callNlpService(speechIds);
+                                callNlpService(speechIds, plenaryProtocolId);
                             }
                         } else {
                             plenaryProtocolRepository.save(plenaryProtocol);
@@ -285,18 +285,19 @@ public class ApiService {
         return speechIds;
     }
 
-    private void callNlpService(List<Integer> speechIds) {
+    private void callNlpService(List<Integer> speechIds, Integer plenaryProtocolId) {
         try {
             String url = nlpServiceUrl + "/process-speeches";
 
             // Prepare request body directly as a Map
-            Map<String, List<Integer>> requestBody = new HashMap<>();
+            Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("speech_ids", speechIds);
+            requestBody.put("plenary_id", plenaryProtocolId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<Map<String, List<Integer>>> entity = new HttpEntity<>(requestBody, headers);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
             logger.info("Calling NLP service to process {} speeches", speechIds.size());
 
