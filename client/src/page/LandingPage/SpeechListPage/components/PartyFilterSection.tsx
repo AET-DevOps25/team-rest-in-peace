@@ -1,8 +1,17 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPartyColor, Party } from "@/global";
 import useSpeechStore from "@/store/speechStore";
+import { Bell } from "lucide-react";
+import { useState } from "react";
 import { useSearchParams } from "react-router";
+import NotificationModal from "../../components/NotificationModal";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const PartyFilterSection = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,10 +33,37 @@ const PartyFilterSection = () => {
     setSearchParams(newParams, { replace: true });
   };
 
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="mb-2 text-2xl">Partei Filter</CardTitle>
+        <div className="flex flex-row items-center justify-between">
+          <CardTitle className="mb-2 text-2xl">Partei Filter</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size={"sm"}
+                  onClick={() => {
+                    setShowNotificationModal(true);
+                  }}
+                  disabled={!selectedParty}
+                >
+                  <Bell className="w-4 h-4" />
+                </Button>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                {selectedParty
+                  ? "Benachrichtigungen für neue Reden dieser Partei aktivieren"
+                  : "Bitte wählen Sie zuerst eine Partei aus"}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <CardContent>
           <div className="flex flex-wrap gap-2">
             {Object.values(Party).map((party) => (
@@ -47,6 +83,13 @@ const PartyFilterSection = () => {
           </div>
         </CardContent>
       </CardHeader>
+
+      <NotificationModal
+        isOpen={showNotificationModal}
+        onClose={() => setShowNotificationModal(false)}
+        type="PARTY"
+        party={selectedParty || ""}
+      />
     </Card>
   );
 };
