@@ -79,7 +79,7 @@ public class EmailService {
                 .map(party -> {
                     String partyUrl = UriComponentsBuilder
                             .fromUriString(clientBaseUrl)
-                            .path("/party")
+                            .path("/partei")
                             .queryParam("party", party)
                             .build()
                             .encode()
