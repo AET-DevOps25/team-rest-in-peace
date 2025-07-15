@@ -1,6 +1,5 @@
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import useSpeakerStatisticsStore from "@/store/speakerStatisticStore";
-import { Speaker } from "lucide-react";
 import { useEffect } from "react";
 import SpeakerStatisticCard from "./components/SpeakerStatisticCard";
 import { useNavigate } from "react-router";
