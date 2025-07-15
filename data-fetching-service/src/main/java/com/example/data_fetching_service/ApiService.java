@@ -32,8 +32,11 @@ public class ApiService {
     @Value("${bundestag.api.baseurl}")
     private String baseUrl;
 
-    @Value("${nlp.service.url}")
-    private String nlpServiceUrl;
+    @Value("${genai.service.baseurl}")
+    private String genaiServiceBaseUrl;
+
+    @Value("${notification.service.baseurl}")
+    private String notificationServiceBaseUrl;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -56,14 +59,17 @@ public class ApiService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    public record Result(List<Integer> successfulPlenaryProtocolIds) {
+    }
 
-    public void fetchAndStoreData(
+    public Result fetchAndStoreData(
             String aktualisiertStart, String aktualisiertEnd,
             String datumStart, String datumEnd,
             String dokumentnummer, String id,
             String vorgangstyp, String vorgangstypNotation,
             String wahlperiode,
             String cursor, String format) {
+        List<Integer> successfulPlenaryProtocolIds = new ArrayList<>();
         try {
             // Fetch metadata from the Bundestag API
             List<BundestagApiResponse.Document> documents = fetchPlenaryProtocolMetaDataList(
@@ -94,18 +100,21 @@ public class ApiService {
                         if (protocolXml != null && protocolXml.getSitzungsverlauf() != null) {
                             plenaryProtocol.setDate(protocolXml.getDate());
                             plenaryProtocolRepository.save(plenaryProtocol);
+                            successfulPlenaryProtocolIds.add(plenaryProtocol.getId());
                             List<Integer> speechIds = processSpeeches(protocolXml, plenaryProtocol);
 
                             // Call NLP service to process summaries and embeddings for all speeches
                             if (!speechIds.isEmpty()) {
-                                callNlpService(speechIds, plenaryProtocolId);
+                                callGenaiService(speechIds, plenaryProtocolId);
                             }
                         } else {
                             plenaryProtocolRepository.save(plenaryProtocol);
+                            successfulPlenaryProtocolIds.add(plenaryProtocol.getId());
                         }
                     } else {
                         logger.info("Skipping document because xml does not yet exist.");
                         plenaryProtocolRepository.save(plenaryProtocol);
+                        successfulPlenaryProtocolIds.add(plenaryProtocol.getId());
                     }
                 } catch (Exception e) {
                     logger.error("Error processing document {}: {}", document.getId(), e.getMessage(), e);
@@ -114,6 +123,7 @@ public class ApiService {
         } catch (Exception e) {
             logger.error("Error fetching and storing data: {}", e.getMessage(), e);
         }
+        return new Result(successfulPlenaryProtocolIds);
     }
 
     private List<BundestagApiResponse.Document> fetchPlenaryProtocolMetaDataList(
@@ -285,9 +295,9 @@ public class ApiService {
         return speechIds;
     }
 
-    private void callNlpService(List<Integer> speechIds, Integer plenaryProtocolId) {
+    private void callGenaiService(List<Integer> speechIds, Integer plenaryProtocolId) {
         try {
-            String url = nlpServiceUrl + "/process-speeches";
+            String url = genaiServiceBaseUrl + "/process-speeches";
 
             // Prepare request body directly as a Map
             Map<String, Object> requestBody = new HashMap<>();
@@ -311,6 +321,33 @@ public class ApiService {
 
         } catch (Exception e) {
             logger.error("Error calling NLP service for speech processing.");
+        }
+    }
+
+    public void callNotificationService(List<Integer> plenaryProtocolIds) {
+        URI uri = UriComponentsBuilder
+                .fromUriString(notificationServiceBaseUrl)
+                .path("/notify")
+                .build()
+                .toUri();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        Map<String, List<Integer>> requestBody = Collections.singletonMap("plenaryProtocolIds", plenaryProtocolIds);
+        HttpEntity<Map<String, List<Integer>>> request = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<Void> resp = restTemplate.exchange(
+                uri,
+                HttpMethod.POST,
+                request,
+                Void.class
+        );
+
+
+        if (resp.getStatusCode() != HttpStatus.ACCEPTED) {
+            logger.error("Error calling Notification service notify route with plenaryProtocolIds {}", plenaryProtocolIds);
+        } else {
+            logger.info("Successfully called Notification service for plenaryProtocolIds {}", plenaryProtocolIds);
         }
     }
 

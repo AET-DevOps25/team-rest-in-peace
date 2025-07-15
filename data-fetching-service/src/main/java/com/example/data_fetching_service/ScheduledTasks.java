@@ -29,7 +29,7 @@ public class ScheduledTasks {
         String today = midnight
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
         today = "2025-07-09T00:00:00";
-        apiService.fetchAndStoreData(
+        ApiService.Result fetchResult = apiService.fetchAndStoreData(
                 today,  // aktualisiertStart
                 null,  // aktualisiertEnd
                 null, // datumStart,
@@ -42,5 +42,8 @@ public class ScheduledTasks {
                 null,  // cursor
                 "json" // format
         );
+
+        apiService.callNotificationService(fetchResult.successfulPlenaryProtocolIds());
+        logger.info("Finished daily data fetch");
     }
 }
