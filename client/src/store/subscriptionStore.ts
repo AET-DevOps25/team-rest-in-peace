@@ -1,5 +1,4 @@
 import { NOTIFICATIONS_BASE_URL } from "@/global";
-import { subscribe } from "diagnostics_channel";
 import { create } from "zustand";
 
 interface SubscriptionStoreState {
@@ -13,6 +12,7 @@ interface SubscriptionStoreState {
     personId?: number;
     party?: string;
   }) => Promise<void>;
+  reset: () => void;
 }
 const api = {
   unsubscribe: async (email: string): Promise<void> => {
@@ -73,6 +73,7 @@ const useSubscriptionStore = create<SubscriptionStoreState>((set) => ({
       set({ loading: false, error: (error as Error).message });
     }
   },
+  reset: () => set({ loading: false, error: null, success: false }),
 }));
 
 export default useSubscriptionStore;

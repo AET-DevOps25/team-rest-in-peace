@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { getPartyColor } from "@/global";
+import useSubscriptionStore from "@/store/subscriptionStore";
 import { Label } from "@radix-ui/react-label";
 import { Bell, Check, Mail } from "lucide-react";
 import { useState } from "react";
@@ -34,7 +35,7 @@ const NotificationModal = ({
 }: NotificationModalProps) => {
   const [email, setEmail] = useState("");
 
-  const [successful, setSuccessful] = useState(false); //TODO: GET FROM STORE WHEN OTHER UI IS MERGED
+  const { subscribe, success, reset, loading, error } = useSubscriptionStore();
 
   const getTitle = () => {
     switch (type) {
@@ -69,19 +70,25 @@ const NotificationModal = ({
   const isValidEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  if (successful) {
+  if (success) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            Benachrichtigungen aktiviert!
-          </DialogTitle>
-          <DialogDescription>
-            Sie erhalten ab sofort Benachrichtigungen an{" "}
-            <strong>{email}</strong>
-          </DialogDescription>
-        </DialogHeader>
+      <Dialog
+        open={isOpen}
+        onOpenChange={() => {
+          onClose();
+          reset();
+        }}
+      >
         <DialogContent className="sm:max-w-md">
+          <DialogHeader className="hidden">
+            <DialogTitle className="flex items-center gap-2">
+              Benachrichtigungen aktiviert!
+            </DialogTitle>
+            <DialogDescription>
+              Sie erhalten ab sofort Benachrichtigungen an{" "}
+              <strong>{email}</strong>
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
               <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
@@ -96,7 +103,7 @@ const NotificationModal = ({
             <p className="text-xs text-muted-foreground">
               Sie können sich jederzeit{" "}
               <a
-                href={`/unsubscribe?email=${encodeURIComponent(email)}`}
+                href={`/unsubscribe?email=${email}`}
                 className="underline hover:no-underline"
               >
                 hier abmelden
@@ -109,7 +116,13 @@ const NotificationModal = ({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={() => {
+        onClose();
+        reset();
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -148,37 +161,67 @@ const NotificationModal = ({
             </div>
           )}
         </DialogHeader>
-        <div className="space-y-2">
-          <Label htmlFor="email" className="flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            E-Mail-Adresse
-          </Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="ihre.email@beispiel.de"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="flex gap-2 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            className="flex-1 bg-transparent"
-          >
-            Abbrechen
-          </Button>
-          <Button
-            type="submit"
-            className="flex-1"
-            disabled={!email || !isValidEmail(email)}
-          >
-            Benachrichtigungen aktivieren
-          </Button>
-        </div>
+
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                E-Mail-Adresse
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="ihre.email@beispiel.de"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            {error && (
+              <div>
+                <div className="text-red-500 text-sm">
+                  Fehler bei Aktivierung der Benachrichtigungen.
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Bitte überprüfen Sie Ihre E-Mail-Adresse und versuchen Sie es
+                  erneut. <br />
+                  Fehler: {error}
+                </p>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  onClose();
+                  reset();
+                }}
+                className="flex-1 bg-transparent"
+              >
+                Abbrechen
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={!email || !isValidEmail(email)}
+                onClick={() => {
+                  subscribe({
+                    email,
+                    type,
+                    personId: speaker?.id,
+                    party,
+                  });
+                }}
+              >
+                Benachrichtigungen aktivieren
+              </Button>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
