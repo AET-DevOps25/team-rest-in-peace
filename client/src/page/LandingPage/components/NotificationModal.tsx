@@ -16,7 +16,7 @@ import { useState } from "react";
 interface NotificationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: "session" | "speaker" | "party";
+  type: "PLENARY_PROTOCOL" | "PERSON" | "PARTY";
   speaker?: {
     name: string;
     id: number;
@@ -38,11 +38,11 @@ const NotificationModal = ({
 
   const getTitle = () => {
     switch (type) {
-      case "session":
+      case "PLENARY_PROTOCOL":
         return "Benachrichtigungen für neue Plenarsitzungen";
-      case "party":
+      case "PARTY":
         return "Benachrichtigungen für Partei";
-      case "speaker":
+      case "PERSON":
         return "Benachrichtigungen für Politiker";
       default:
         return "Benachrichtigungen einrichten";
@@ -51,13 +51,13 @@ const NotificationModal = ({
 
   const getDescription = () => {
     switch (type) {
-      case "session":
+      case "PLENARY_PROTOCOL":
         return "Erhalten Sie Updates zu neuen Plenarsitzungen des Bundestages";
-      case "party":
+      case "PARTY":
         return `Erhalten Sie Updates zu allen Reden und Aktivitäten von ${
           party ?? "der Partei"
         }`;
-      case "speaker":
+      case "PERSON":
         return `Erhalten Sie Updates zu allen Reden von ${
           speaker?.name ?? "diesem Politiker"
         }`;

@@ -60,7 +60,7 @@ const PlenarySessionListPage = () => {
       <NotificationModal
         isOpen={showNotificationModal}
         onClose={() => setShowNotificationModal(false)}
-        type="session"
+        type="PLENARY_PROTOCOL"
       />
     </div>
   );

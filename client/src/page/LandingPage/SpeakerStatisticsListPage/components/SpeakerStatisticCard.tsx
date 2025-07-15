@@ -85,7 +85,7 @@ const SpeakerStatisticCard = ({
       <NotificationModal
         isOpen={showNotificationModal}
         onClose={() => setShowNotificationModal(false)}
-        type="speaker"
+        type="PERSON"
         speaker={{
           name: `${speaker.firstName} ${speaker.lastName}`,
           id: speaker.personId,
