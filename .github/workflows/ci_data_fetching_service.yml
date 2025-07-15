@@ -1,11 +1,6 @@
 name: CI for Data Fetching Service
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'data-fetching-service/**'
   pull_request:
     branches:
       - main
