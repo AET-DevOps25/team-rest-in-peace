@@ -87,7 +87,7 @@ const PartyFilterSection = () => {
       <NotificationModal
         isOpen={showNotificationModal}
         onClose={() => setShowNotificationModal(false)}
-        type="party"
+        type="PARTY"
         party={selectedParty || ""}
       />
     </Card>
