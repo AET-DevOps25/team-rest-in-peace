@@ -91,6 +91,7 @@ services:
       - data-fetching-service
       - browsing-service
       - notification-service
+      - grafana
 
   prometheus:
     image: prom/prometheus
