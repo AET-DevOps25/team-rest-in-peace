@@ -1,11 +1,6 @@
 name: CI for Genai Service
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'genai-service/**'
   pull_request:
     branches:
       - main
