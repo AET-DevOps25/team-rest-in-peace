@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -58,8 +59,24 @@ public class Controller {
     @GetMapping("/speeches")
     public Page<SpeechDto> getAllSpeeches(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String party,
+            @RequestParam(required = false) Integer speakerId,
+            @RequestParam(required = false) Integer plenaryProtocolId
     ) {
-        return browsingService.getAllSpeechDetails(PageRequest.of(page, size));
+        Pageable pageable = PageRequest.of(page, size);
+        return browsingService.getAllSpeechDetails(pageable, party, speakerId, plenaryProtocolId);
+    }
+
+    @GetMapping("plenary-protocols/{id}/name")
+    public ResponseEntity<String> getPlenaryProtocolName(@PathVariable int id) {
+        String name = browsingService.getPlenaryProtocolName(id);
+        return ResponseEntity.ok(name);
+    }
+
+    @GetMapping("speaker/{id}/name")
+    public ResponseEntity<String> getSpeakerName(@PathVariable int id) {
+        String name = browsingService.getSpeakerName(id);
+        return ResponseEntity.ok(name);
     }
 }

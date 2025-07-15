@@ -60,5 +60,5 @@ def test_summarize_and_embed_combines_both():
 @pytest.mark.asyncio
 async def test_process_speeches_task_empty_list_raises():
     with pytest.raises(HTTPException) as excinfo:
-        await process_speeches_task([])
+        await process_speeches_task([], 0)
     assert "speech_ids cannot be empty" in str(excinfo.value.detail)
