@@ -27,7 +27,7 @@ public class EmailService {
               <body>
                 <p>Dear Subscriber,</p>
                 <p>There have been %d new plenary protocol(s) published.</p>
-                <p>You can view them <a href="%s/plenary-protocols">here</a>.</p>
+                <p>You can view them <a href="%s">here</a>.</p>
                 <p>If you no longer wish to receive these notifications, you can <a href="%s">unsubscribe here</a>.</p>
                 <hr/>
                 <p>Best regards,<br/>Policy Watch Team</p>
@@ -80,7 +80,7 @@ public class EmailService {
                     String partyUrl = UriComponentsBuilder
                             .fromUriString(clientBaseUrl)
                             .path("/party")
-                            .queryParam("partei", party)
+                            .queryParam("party", party)
                             .build()
                             .encode()
                             .toUriString();
