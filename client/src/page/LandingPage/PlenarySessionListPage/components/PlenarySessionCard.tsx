@@ -12,11 +12,12 @@ import { Calendar, FileText, Users } from "lucide-react";
 
 interface PlenarySessionCardProps {
   protocol: PlenaryProtocolDto;
+  onClick?: () => void;
 }
 
-const PlenarySessionCard = ({ protocol }: PlenarySessionCardProps) => {
+const PlenarySessionCard = ({ protocol, onClick }: PlenarySessionCardProps) => {
   return (
-    <Card className="hover:shadow-lg cursor-pointer">
+    <Card className="hover:shadow-lg cursor-pointer" onClick={onClick}>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">

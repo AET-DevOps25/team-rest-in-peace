@@ -22,3 +22,16 @@ export function formatWords(words: number) {
   }
   return `${words} Wörter`;
 }
+
+export const Party = {
+  SPD: "SPD",
+  CDU_CSU: "CDU/CSU",
+  GRUENE: "BÜNDNIS 90/DIE GRÜNEN",
+  FDP: "FDP",
+  AFD: "AfD",
+  DIE_LINKE: "Die Linke",
+  BSW: "BSW",
+  FRAKTIONSPARTEI: "fraktionslos",
+} as const;
+
+export type Party = (typeof Party)[keyof typeof Party];

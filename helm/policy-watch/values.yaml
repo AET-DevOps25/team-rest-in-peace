@@ -42,3 +42,7 @@ notificationService:
   db:
     username: "notification_user"
     password: "notification_password"
+
+client:
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/client:latest"
+  port: 3000

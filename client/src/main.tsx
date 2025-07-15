@@ -6,6 +6,7 @@ import PlenarySessionListPage from "./page/LandingPage/PlenarySessionListPage/Pl
 import CategoryLayout from "./components/layouts/CategoryLayout.tsx";
 import SpeakerStatisticsListPage from "./page/LandingPage/SpeakerStatisticsListPage/SpeakerStatisticsListPage.tsx";
 import SpeechListPage from "./page/LandingPage/SpeechListPage/SpeechListPage.tsx";
+import GenerallLayout from "./components/layouts/GenerallLayout.tsx";
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,22 @@ const router = createBrowserRouter([
         ),
       },
     ],
+  },
+  {
+    path: "protokolle/:plenaryProtocolId",
+    element: (
+      <GenerallLayout>
+        <SpeechListPage />
+      </GenerallLayout>
+    ),
+  },
+  {
+    path: "reden/:speakerId",
+    element: (
+      <GenerallLayout>
+        <SpeechListPage />
+      </GenerallLayout>
+    ),
   },
 ]);
 
