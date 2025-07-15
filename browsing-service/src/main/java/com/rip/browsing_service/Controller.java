@@ -1,4 +1,5 @@
 package com.rip.browsing_service;
+
 import com.rip.browsing_service.dto.PlenaryProtocolDto;
 import com.rip.browsing_service.dto.SpeakerStatisticDto;
 import com.rip.browsing_service.dto.SpeechDto;
@@ -14,13 +15,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class Controller {
 
     @Autowired
     private BrowsingService browsingService;
+
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, Boolean>> health() {
+        Map<String, Boolean> body = Collections.singletonMap("healthy", true);
+        return ResponseEntity.ok(body);
+    }
 
     @GetMapping("/statistics")
     public ResponseEntity<StatisticsDto> getStatistics() {

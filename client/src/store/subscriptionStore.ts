@@ -1,4 +1,4 @@
-import { NOTIFICATIONS_BASE_URL } from "@/global";
+import { NOTIFICATION_BASE_URL } from "@/global";
 import { create } from "zustand";
 
 interface SubscriptionStoreState {
@@ -17,7 +17,7 @@ interface SubscriptionStoreState {
 const api = {
   unsubscribe: async (email: string): Promise<void> => {
     const res = await fetch(
-      `${NOTIFICATIONS_BASE_URL}/unsubscribe?email=${encodeURIComponent(
+      `${NOTIFICATION_BASE_URL}/unsubscribe?email=${encodeURIComponent(
         email
       )}`,
       {
@@ -35,7 +35,7 @@ const api = {
     personId?: number;
     party?: string;
   }): Promise<void> => {
-    const res = await fetch(`${NOTIFICATIONS_BASE_URL}/subscribe`, {
+    const res = await fetch(`${NOTIFICATION_BASE_URL}/subscribe`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
