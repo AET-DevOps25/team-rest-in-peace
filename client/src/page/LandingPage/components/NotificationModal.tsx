@@ -54,8 +54,8 @@ const NotificationModal = ({
       case "session":
         return "Erhalten Sie Updates zu neuen Plenarsitzungen des Bundestages";
       case "party":
-        return `Erhalten Sie Updates zu allen Reden und Aktivitäten der ${
-          party ?? "Partei"
+        return `Erhalten Sie Updates zu allen Reden und Aktivitäten von ${
+          party ?? "der Partei"
         }`;
       case "speaker":
         return `Erhalten Sie Updates zu allen Reden von ${
@@ -132,6 +132,18 @@ const NotificationModal = ({
                     {speaker?.party ?? "Unbekannt"}
                   </Badge>
                 )}
+              </div>
+            </div>
+          )}
+          {party && (
+            <div className="p-3 bg-muted rounded-lg">
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant="outline"
+                  className={`${getPartyColor(party ?? "")} text-white text-xs`}
+                >
+                  {party ?? "Unbekannt"}
+                </Badge>
               </div>
             </div>
           )}
