@@ -91,20 +91,28 @@ jobs:
             echo "DF_BUNDESTAG_API_KEY=${{ secrets.DF_BUNDESTAG_API_KEY }}" >> .env
             echo "DF_DB_USERNAME=data-fetching-service" >> .env
             echo "DF_DB_PASSWORD=${{ secrets.DF_DB_PASSWORD }}" >> .env
-
+            echo "NS_BASEURL=${{ secrets.NS_BASEURL }}" >> .env
+            echo "GS_BASEURL=${{ secrets.GS_BASEURL }}" >> .env
+            
+            echo "# client" >> .env
+            echo "VITE_BROWSING_BASE_URL=${{ secrets.VITE_BROWSING_BASE_URL }}" >> .env
+            echo "VITE_NOTIFICATION_BASE_URL=${{ secrets.VITE_NOTIFICATION_BASE_URL }}" >> .env
+            
             echo "# nlp-service" >> .env
             echo "NLP_DB_USERNAME=nlp-service" >> .env
             echo "NLP_DB_PASSWORD=${{ secrets.NLP_DB_PASSWORD }}" >> .env
             echo "NLP_GENAI_API_KEY=${{ secrets.NLP_GENAI_API_KEY }}" >> .env
 
             echo "# Browse-service" >> .env
-            echo "BS_DB_USERNAME=Browse-service" >> .env
+            echo "BS_DB_USERNAME=${{ secrets.BS_DB_USERNAME }}" >> .env
             echo "BS_DB_PASSWORD=${{ secrets.BS_DB_PASSWORD }}" >> .env
 
             echo "# notification-service" >> .env
-            echo "NS_DB_USERNAME=notification_service" >> .env
+            echo "CLIENT_BASE_URL=http://${{ needs.read-inventory.outputs.host_ip }}/" >> .env
+            echo "NS_DB_USERNAME=${{ secrets.NS_DB_USERNAME }}" >> .env
             echo "NS_DB_PASSWORD=${{ secrets.NS_DB_PASSWORD }}" >> .env
-            echo "NS_MAIL_PROVIDER_API_KEY=${{ secrets.NS_MAIL_PROVIDER_API_KEY }}" >> .env
+            echo "NS_MAIL_USERNAME=${{ secrets.NS_MAIL_USERNAME }}" >> .env
+            echo "NS_MAIL_PASSWORD=${{ secrets.NS_MAIL_PASSWORD }}" >> .env
 
 
       - name: Deploy on EC2 instance
