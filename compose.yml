@@ -22,19 +22,6 @@ services:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       start_period: 10s
 
-  genai-service:
-    image: ghcr.io/aet-devops25/team-rest-in-peace/genai-service:latest
-    build: genai-service
-    container_name: genai-service
-    env_file:
-      - .env
-    expose:
-      - "8000"
-    healthcheck:
-      test: [ "CMD-SHELL", "python3 app/healthcheck.py" ]
-      start_period: 5s
-    depends_on:
-      - db
 
   data-fetching-service:
     image: ghcr.io/aet-devops25/team-rest-in-peace/data-fetching-service:latest
@@ -57,9 +44,9 @@ services:
     env_file:
       - .env
     expose:
-      - "8080"
+      - "8081"
     healthcheck:
-      test: "curl -f localhost:8080/health"
+      test: "curl -f localhost:8081/health"
       start_period: 5s
     depends_on:
       - db
@@ -71,9 +58,23 @@ services:
     env_file:
       - .env
     expose:
-      - "8080"
+      - "8082"
     healthcheck:
-      test: "curl -f localhost:8080/health"
+      test: "curl -f localhost:8082/health"
+      start_period: 5s
+    depends_on:
+      - db
+
+  genai-service:
+    image: ghcr.io/aet-devops25/team-rest-in-peace/genai-service:latest
+    build: genai-service
+    container_name: genai-service
+    env_file:
+      - .env
+    expose:
+      - "8000"
+    healthcheck:
+      test: [ "CMD-SHELL", "python3 app/healthcheck.py" ]
       start_period: 5s
     depends_on:
       - db
@@ -118,6 +119,8 @@ services:
       - prometheus
     volumes:
       - grafana-storage:/var/lib/grafana
+
+
 
 volumes:
   grafana-storage:
