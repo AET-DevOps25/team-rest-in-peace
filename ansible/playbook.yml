@@ -63,6 +63,21 @@
         group: ec2-user
         mode: '0644'
 
+    - name: Copy prometheus.yml file
+      copy:
+        src: ../prometheus.yml
+        dest: /home/ec2-user/app/prometheus.yml
+        owner: ec2-user
+        group: ec2-user
+        mode: '0640'
+    - name: Copy nginx config recursively using rsync
+      ansible.builtin.synchronize:
+        src: ../nginx/
+        dest: /home/ec2-user/app/nginx/
+        recursive: yes
+        rsync_opts:
+          - "--chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r"
+
     - name: Build and start Docker containers
       shell: |
         cd /home/ec2-user/app/
