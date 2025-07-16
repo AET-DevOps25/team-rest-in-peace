@@ -37,6 +37,15 @@ services:
     depends_on:
       - db
 
+
+  initial-data-fetch:
+    image: curlimages/curl:7.85.0
+    depends_on:
+      data-fetching-service:
+        condition: service_healthy
+    command: [ "curl", "-X", "GET", "http://data-fetching-service:8080/fetch?f.datum.start=2025-07-01&f.wahlperiode=21" ]
+    restart: "no"
+
   browsing-service:
     image: ghcr.io/aet-devops25/team-rest-in-peace/browsing-service:latest
     build: browsing-service
