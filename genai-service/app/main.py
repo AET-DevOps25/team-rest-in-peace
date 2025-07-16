@@ -104,28 +104,39 @@ async def prometheus_middleware(request: Request, call_next):
 
 
 class SummaryRequest(BaseModel):
-    text: str = "Dies ist eine Rede aus dem Deutschen Bundestag über die Energiepolitik."
+    text: str = (
+        "Dies ist eine Rede aus dem Deutschen Bundestag über die Energiepolitik."
+    )
+
 
 class SummaryResponse(BaseModel):
-    summary: str = "Die Rede behandelt energiepolitische Herausforderungen und geplante Maßnahmen."
+    summary: str = (
+        "Die Rede behandelt energiepolitische Herausforderungen und geplante Maßnahmen."
+    )
+
 
 class EmbeddingRequest(BaseModel):
-    text: str = "Das Parlament diskutierte über Steuerreformen und soziale Gerechtigkeit."
+    text: str = (
+        "Das Parlament diskutierte über Steuerreformen und soziale Gerechtigkeit."
+    )
+
 
 class EmbeddingResponse(BaseModel):
     embedding: List[float] = [0.123, 0.456, 0.789]
 
+
 class CombinedRequest(BaseModel):
     text: str = "Im Bundestag wurde über Digitalisierung in der Bildung gesprochen."
+
 
 class CombinedResponse(BaseModel):
     summary: str = "Die Rede fokussiert sich auf digitale Bildungsoffensiven."
     embedding: List[float] = [0.234, 0.567, 0.891]
 
+
 class ProcessSpeechesRequest(BaseModel):
     speech_ids: List[int] = [101, 102, 103]
     plenary_id: int = 17
-
 
 
 @app.get("/metrics", summary="Prometheus Metrics Endpoint")
@@ -142,9 +153,11 @@ def metrics():
     data = generate_latest()
     return StarletteResponse(content=data, media_type=CONTENT_TYPE_LATEST)
 
+
 @app.get("/health", summary="Health Check", description="Check if the API is running.")
 def health_check():
     return {"healthy": True}
+
 
 @app.post("/summary", response_model=SummaryResponse, summary="Summarize Speech Text")
 def summarize_protocol(request: SummaryRequest):
@@ -167,7 +180,9 @@ def summarize_protocol(request: SummaryRequest):
         )
 
 
-@app.post("/embedding", response_model=EmbeddingResponse, summary="Generate Text Embedding")
+@app.post(
+    "/embedding", response_model=EmbeddingResponse, summary="Generate Text Embedding"
+)
 def embed_text(request: EmbeddingRequest):
     """
     Generates a semantic embedding vector from input text using a generative embedding model.
@@ -187,7 +202,9 @@ def embed_text(request: EmbeddingRequest):
         )
 
 
-@app.post("/combined", response_model=CombinedResponse, summary="Summarize & Embed Text")
+@app.post(
+    "/combined", response_model=CombinedResponse, summary="Summarize & Embed Text"
+)
 def summarize_and_embed(request: CombinedRequest):
     """
     Generates both a summary and an embedding vector from the input text.
