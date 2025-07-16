@@ -16,7 +16,7 @@ provider "aws" {
 
 resource "aws_instance" "policy-watch" {
   ami = "ami-0953476d60561c955" # Amazon Linux
-  instance_type = "t2.micro"
+  instance_type = "t3.medium"
   key_name      = "vockey"
   vpc_security_group_ids = [aws_security_group.allow_http_https.id]
 
