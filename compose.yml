@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
     expose:
-      - "80"
+      - "3000"
 
   db:
     image: ghcr.io/aet-devops25/team-rest-in-peace/database:latest
@@ -22,19 +22,6 @@ services:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       start_period: 10s
 
-  genai-service:
-    image: ghcr.io/aet-devops25/team-rest-in-peace/genai-service:latest
-    build: genai-service
-    container_name: genai-service
-    env_file:
-      - .env
-    expose:
-      - "8000"
-    healthcheck:
-      test: [ "CMD-SHELL", "python3 app/healthcheck.py" ]
-      start_period: 5s
-    depends_on:
-      - db
 
   data-fetching-service:
     image: ghcr.io/aet-devops25/team-rest-in-peace/data-fetching-service:latest
@@ -50,6 +37,15 @@ services:
     depends_on:
       - db
 
+
+  initial-data-fetch:
+    image: curlimages/curl:7.85.0
+    depends_on:
+      data-fetching-service:
+        condition: service_healthy
+    command: [ "curl", "-X", "GET", "http://data-fetching-service:8080/fetch?f.datum.start=2025-07-01&f.wahlperiode=21" ]
+    restart: "no"
+
   browsing-service:
     image: ghcr.io/aet-devops25/team-rest-in-peace/browsing-service:latest
     build: browsing-service
@@ -57,9 +53,9 @@ services:
     env_file:
       - .env
     expose:
-      - "8080"
+      - "8081"
     healthcheck:
-      test: "curl -f localhost:8080/health"
+      test: "curl -f localhost:8081/health"
       start_period: 5s
     depends_on:
       - db
@@ -71,9 +67,23 @@ services:
     env_file:
       - .env
     expose:
-      - "8080"
+      - "8082"
     healthcheck:
-      test: "curl -f localhost:8080/health"
+      test: "curl -f localhost:8082/health"
+      start_period: 5s
+    depends_on:
+      - db
+
+  genai-service:
+    image: ghcr.io/aet-devops25/team-rest-in-peace/genai-service:latest
+    build: genai-service
+    container_name: genai-service
+    env_file:
+      - .env
+    expose:
+      - "8000"
+    healthcheck:
+      test: [ "CMD-SHELL", "python3 app/healthcheck.py" ]
       start_period: 5s
     depends_on:
       - db
@@ -91,6 +101,7 @@ services:
       - data-fetching-service
       - browsing-service
       - notification-service
+      - grafana
 
   prometheus:
     image: prom/prometheus
@@ -110,10 +121,15 @@ services:
     container_name: grafana
     expose:
       - "3000"
+    environment:
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/dev/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     depends_on:
       - prometheus
     volumes:
       - grafana-storage:/var/lib/grafana
+
+
 
 volumes:
   grafana-storage:
