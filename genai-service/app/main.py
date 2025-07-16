@@ -24,7 +24,26 @@ from prometheus_client import (
 )
 from starlette.responses import Response as StarletteResponse
 
-app = FastAPI(title="German Plenary Protocol API", version="1.0.0")
+app = FastAPI(
+    title="German Plenary Protocol API",
+    version="1.0.0",
+    description="""
+This API processes and summarizes German parliamentary speeches. It supports generating text summaries, embeddings,
+and aggregated plenary session summaries using Google Generative AI.
+
+### Main Features
+
+- Summarize individual speeches.
+- Generate embeddings for semantic search.
+- Perform combined summary + embedding tasks.
+- Asynchronously process batches of speeches and update the database.
+- Generate complete summaries for plenary protocols.
+- Prometheus-compatible metrics endpoint.
+
+Mainly called by data-fetching service to enrich the Protocols.
+""",
+)
+
 
 NLP_API_KEY = os.getenv("NLP_GENAI_API_KEY")
 NLP_DB_USERNAME = os.getenv("NLP_DB_USERNAME")
@@ -84,51 +103,71 @@ async def prometheus_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/metrics")
+class SummaryRequest(BaseModel):
+    text: str = (
+        "Dies ist eine Rede aus dem Deutschen Bundestag über die Energiepolitik."
+    )
+
+
+class SummaryResponse(BaseModel):
+    summary: str = (
+        "Die Rede behandelt energiepolitische Herausforderungen und geplante Maßnahmen."
+    )
+
+
+class EmbeddingRequest(BaseModel):
+    text: str = (
+        "Das Parlament diskutierte über Steuerreformen und soziale Gerechtigkeit."
+    )
+
+
+class EmbeddingResponse(BaseModel):
+    embedding: List[float] = [0.123, 0.456, 0.789]
+
+
+class CombinedRequest(BaseModel):
+    text: str = "Im Bundestag wurde über Digitalisierung in der Bildung gesprochen."
+
+
+class CombinedResponse(BaseModel):
+    summary: str = "Die Rede fokussiert sich auf digitale Bildungsoffensiven."
+    embedding: List[float] = [0.234, 0.567, 0.891]
+
+
+class ProcessSpeechesRequest(BaseModel):
+    speech_ids: List[int] = [101, 102, 103]
+    plenary_id: int = 17
+
+
+@app.get("/metrics", summary="Prometheus Metrics Endpoint")
 def metrics():
+    """
+    Exposes Prometheus-compatible metrics for monitoring.
+
+    Includes:
+    - Request count
+    - Latency histogram
+
+    **Returns**: Prometheus metrics in plaintext format.
+    """
     data = generate_latest()
     return StarletteResponse(content=data, media_type=CONTENT_TYPE_LATEST)
 
 
-# Request/Response Models
-class SummaryRequest(BaseModel):
-    text: str
-
-
-class EmbeddingRequest(BaseModel):
-    text: str
-
-
-class CombinedRequest(BaseModel):
-    text: str
-
-
-class ProcessSpeechesRequest(BaseModel):
-    speech_ids: List[int]
-    plenary_id: int
-
-
-class SummaryResponse(BaseModel):
-    summary: str
-
-
-class EmbeddingResponse(BaseModel):
-    embedding: List[float]
-
-
-class CombinedResponse(BaseModel):
-    summary: str
-    embedding: List[float]
-
-
-@app.get("/health")
+@app.get("/health", summary="Health Check", description="Check if the API is running.")
 def health_check():
     return {"healthy": True}
 
 
-@app.post("/summary", response_model=SummaryResponse)
+@app.post("/summary", response_model=SummaryResponse, summary="Summarize Speech Text")
 def summarize_protocol(request: SummaryRequest):
-    """Summarize German plenary protocols"""
+    """
+    Generates a concise summary from a given plenary speech text.
+
+    - **text**: Full raw text of the speech (plain format).
+
+    **Returns**: Generated summary based on the input text.
+    """
     try:
         full_prompt = PROMPTS["summary"].format(text=request.text)
         result = llm.invoke(full_prompt)
@@ -141,9 +180,17 @@ def summarize_protocol(request: SummaryRequest):
         )
 
 
-@app.post("/embedding", response_model=EmbeddingResponse)
+@app.post(
+    "/embedding", response_model=EmbeddingResponse, summary="Generate Text Embedding"
+)
 def embed_text(request: EmbeddingRequest):
-    """Generate embeddings for text"""
+    """
+    Generates a semantic embedding vector from input text using a generative embedding model.
+
+    - **text**: Input text to be embedded.
+
+    **Returns**: List of float values representing the embedding vector.
+    """
     try:
         embedding_vector = embeddings.embed_query(request.text)
 
@@ -155,9 +202,19 @@ def embed_text(request: EmbeddingRequest):
         )
 
 
-@app.post("/combined", response_model=CombinedResponse)
+@app.post(
+    "/combined", response_model=CombinedResponse, summary="Summarize & Embed Text"
+)
 def summarize_and_embed(request: CombinedRequest):
-    """Generate both summary and embedding for text"""
+    """
+    Generates both a summary and an embedding vector from the input text.
+
+    - **text**: Full speech text or segment to process.
+
+    **Returns**:
+    - `summary`: A textual summary.
+    - `embedding`: A semantic vector for downstream applications.
+    """
     try:
         # Generate summary
         full_prompt = PROMPTS["summary"].format(text=request.text)
@@ -175,8 +232,20 @@ def summarize_and_embed(request: CombinedRequest):
         )
 
 
-@app.post("/process-speeches", status_code=202)
+@app.post("/process-speeches", status_code=202, summary="Batch Process Speech IDs")
 async def process_speeches(request: ProcessSpeechesRequest):
+    """
+    Asynchronously processes a batch of speech entries by ID:
+
+    - Generates summaries and embeddings.
+    - Updates the database entries for each speech.
+    - Finally creates a combined summary of the entire plenary protocol.
+
+    - **speech_ids**: List of speech record IDs to process.
+    - **plenary_id**: ID of the plenary protocol session.
+
+    **Returns**: Processing will run in the background. HTTP 202 indicates task has started.
+    """
     asyncio.create_task(process_speeches_task(request.speech_ids, request.plenary_id))
     return {"message": "Speech processing started"}
 
