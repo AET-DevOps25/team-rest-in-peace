@@ -79,7 +79,7 @@ public class BrowsingService {
                     protocol.getId().toString(),
                     protocol.getDate() != null ?  protocol.getDate().toString() : null,
                     createProtocolName(protocol),
-                    null,
+                    protocol.getSummary() != null ? protocol.getSummary() : "",
                     (int) speakerCount,
                     totalWords,
                     partyStats

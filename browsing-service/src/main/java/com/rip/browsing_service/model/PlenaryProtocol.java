@@ -21,6 +21,9 @@ public class PlenaryProtocol {
     @Column(name = "publisher")
     private String publisher;
 
+    @Column(name = "summary")
+    private String summary;
+
     @Temporal(TemporalType.DATE)
     @Column(name = "date")
     private Date date;
@@ -67,6 +70,14 @@ public class PlenaryProtocol {
 
     public void setAgendaItems(List<AgendaItem> agendaItems) {
         this.agendaItems = agendaItems;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
     public Date getDate() {
