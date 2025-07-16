@@ -6,16 +6,17 @@
 </head>
 <body>
   <div id="swagger-ui"></div>
-  <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js"></script>
-  <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@latest/swagger-ui.css" />
+  <script src="https://unpkg.com/swagger-ui-dist@latest/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@latest/swagger-ui-standalone-preset.js"></script>
   <script>
     window.onload = function() {
       SwaggerUIBundle({
         urls: [
-          { url: "http://genai-service/openapi.json", name: "GenAI Service"},
-          { url: "http://notification-service/v3/api-docs", name: "Notification Service"},
-          { url: "http://data-fetching-service/v3/api-docs", name: "Data Fetching Service"},
-          { url: "http://browsing-service/v3/api-docs", name: "Browsing Service"}
+          { "url": "/api-docs/genai", "name": "GenAI Service" },
+          { "url": "/api-docs/notification", "name": "Notification Service" },
+          { "url": "/api-docs/data-fetching", "name": "Data Fetching Service" },
+          { "url": "/api-docs/browsing", "name": "Browsing Service" }
         ],
         dom_id: '#swagger-ui',
         deepLinking: true,
