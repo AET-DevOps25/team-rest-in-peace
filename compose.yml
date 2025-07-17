@@ -9,6 +9,9 @@ services:
       - .env
     expose:
       - "3000"
+    healthcheck:
+      test: "curl -f localhost:3000/health.html"
+      start_period: 5s
 
   db:
     image: ghcr.io/aet-devops25/team-rest-in-peace/database:latest
@@ -128,8 +131,6 @@ services:
       - prometheus
     volumes:
       - grafana-storage:/var/lib/grafana
-
-
 
 volumes:
   grafana-storage:
