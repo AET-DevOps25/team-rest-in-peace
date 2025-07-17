@@ -46,7 +46,7 @@ Mainly called by data-fetching service to enrich the Protocols.
 
 
 NLP_API_KEY = os.getenv("NLP_GENAI_API_KEY")
-NLP_DB_USERNAME = os.getenv("NLP_DB_USERNAME")
+NLP_DB_USERNAME = os.getenv("NLP_DB_USERNAME", "nlp-service")
 NLP_DB_PASSWORD = os.getenv("NLP_DB_PASSWORD")
 NLP_DB_HOST = os.getenv("DB_HOST", "localhost")
 NLP_DB_PORT = os.getenv("DB_PORT", "5432")
