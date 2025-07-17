@@ -1,8 +1,27 @@
-export const BROWSING_BASE_URL =
-  import.meta.env.VITE_BROWSING_BASE_URL || "http://localhost:8081";
+const getEnvVar = (key: string, fallback: string): string => {
+  if (
+    typeof window !== "undefined" &&
+    window.RUNTIME_ENVIRONMENT_VARIABLES &&
+    window.RUNTIME_ENVIRONMENT_VARIABLES?.[key]
+  ) {
+    return window.RUNTIME_ENVIRONMENT_VARIABLES?.[key];
+  }
 
-export const NOTIFICATIONS_BASE_URL =
-  import.meta.env.VITE_NOTIFICATIONS_BASE_URL || "http://localhost:8082";
+  if (import.meta.env[key]) {
+    return import.meta.env[key];
+  }
+
+  return fallback;
+};
+
+export const BROWSING_BASE_URL = getEnvVar(
+  "VITE_BROWSING_BASE_URL",
+  "http://localhost:8081"
+);
+export const NOTIFICATIONS_BASE_URL = getEnvVar(
+  "VITE_NOTIFICATIONS_BASE_URL",
+  "http://localhost:8082"
+);
 
 export function getPartyColor(party: string) {
   const colors = {
