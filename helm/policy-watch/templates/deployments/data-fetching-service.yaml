@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
         - name: data-fetching-service
-          image: {{ .Values.dataFetchingService.image }}
+          image: {{ .Values.dataFetchingService.image }}:{{ .Values.dataFetchingService.tag }}
+          imagePullPolicy: {{ .Values.dataFetchingService.imagePullPolicy | default "IfNotPresent" }}
           ports:
             - containerPort: {{ .Values.dataFetchingService.port }}
           envFrom:

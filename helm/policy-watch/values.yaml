@@ -3,7 +3,9 @@
 url: "rest-in-peace.student.k8s.aet.cit.tum.de"
 
 db:
-  image: "ghcr.io/aet-devops25/team-rest-in-peace/database:latest"
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/database"
+  tag: "latest"
+  imagePullPolicy: Always
   port: 5432
   name: "policy_watch_db"
   host: "postgres-service"
@@ -13,7 +15,9 @@ db:
     size: "5Gi"
 
 genaiService:
-  image: "ghcr.io/aet-devops25/team-rest-in-peace/genai-service:latest"
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/genai-service"
+  tag: "latest"
+  imagePullPolicy: Always
   port: 8000
   apiKey: "your_genai_api_key"
   db:
@@ -21,7 +25,9 @@ genaiService:
     password: "genai_password"
 
 dataFetchingService:
-  image: "ghcr.io/aet-devops25/team-rest-in-peace/data-fetching-service:latest"
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/data-fetching-service"
+  tag: "latest"
+  imagePullPolicy: Always
   port: 8080
   bundestagApiKey: "your_bundestag_api_key"
   db:
@@ -29,20 +35,26 @@ dataFetchingService:
     password: "data_fetching_password"
 
 browsingService:
-  image: "ghcr.io/aet-devops25/team-rest-in-peace/browsing-service:latest"
-  port: 8081
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/browsing-service"
+  tag: "latest"
+  imagePullPolicy: Always
+  port: 8080
   db:
     username: "browsing_user"
     password: "browsing_password"
 
 notificationService:
-  image: "ghcr.io/aet-devops25/team-rest-in-peace/notification-service:latest"
-  port: 8082
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/notification-service"
+  tag: "latest"
+  imagePullPolicy: Always
+  port: 8080
   mailProviderApiKey: "your_mail_provider_api_key"
   db:
     username: "notification_user"
     password: "notification_password"
 
 client:
-  image: "ghcr.io/aet-devops25/team-rest-in-peace/client:latest"
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/client"
+  tag: "latest"
+  imagePullPolicy: Always
   port: 3000

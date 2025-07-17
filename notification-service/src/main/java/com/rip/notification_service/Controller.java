@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api/notify")
 public class Controller {
     @Autowired
     private ApiService apiService;

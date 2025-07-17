@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
         - name: genai-service
-          image: {{ .Values.genaiService.image }}
+          image: {{ .Values.genaiService.image }}:{{ .Values.genaiService.tag }}
+          imagePullPolicy: {{ .Values.genaiService.imagePullPolicy | default "IfNotPresent" }}
           ports:
             - containerPort: {{ .Values.genaiService.port }}
           envFrom:

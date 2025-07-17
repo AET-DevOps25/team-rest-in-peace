@@ -24,7 +24,7 @@ from prometheus_client import (
 )
 from starlette.responses import Response as StarletteResponse
 
-app = FastAPI(title="German Plenary Protocol API", version="1.0.0")
+app = FastAPI(title="German Plenary Protocol API", version="1.0.0", root_path="/api/genai")
 
 NLP_API_KEY = os.getenv("NLP_GENAI_API_KEY")
 NLP_DB_USERNAME = os.getenv("NLP_DB_USERNAME")
