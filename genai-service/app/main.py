@@ -1,28 +1,24 @@
-import os
-import time
-
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, Response
-from pydantic import BaseModel
-from typing import List
-
-import asyncpg
-from fastapi import FastAPI, HTTPException
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from typing import List
-from app.config import MODEL_CONFIG, PROMPTS
-import asyncpg
 import asyncio
 import logging
+import os
+import time
+from typing import List
+
+import asyncpg
+from fastapi import FastAPI, HTTPException, Query
+from fastapi import Request
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from prometheus_client import (
-    start_http_server,
     Summary,
     Counter,
-    Gauge,
     generate_latest,
     CONTENT_TYPE_LATEST,
 )
+from pydantic import BaseModel
 from starlette.responses import Response as StarletteResponse
+
+from app.config import MODEL_CONFIG, PROMPTS
 
 app = FastAPI(
     title="German Plenary Protocol API",
@@ -139,6 +135,11 @@ class ProcessSpeechesRequest(BaseModel):
     plenary_id: int = 17
 
 
+class SearchSpeechesRequest(BaseModel):
+    text: str
+    similarity_threshold: float = 0.5
+
+
 @app.get("/metrics", summary="Prometheus Metrics Endpoint")
 def metrics():
     """
@@ -180,10 +181,10 @@ def summarize_protocol(request: SummaryRequest):
         )
 
 
-@app.post(
+@app.get(
     "/embedding", response_model=EmbeddingResponse, summary="Generate Text Embedding"
 )
-def embed_text(request: EmbeddingRequest):
+def embed_text(text: str = Query(..., description="Text to generate embedding for")):
     """
     Generates a semantic embedding vector from input text using a generative embedding model.
 
@@ -192,7 +193,7 @@ def embed_text(request: EmbeddingRequest):
     **Returns**: List of float values representing the embedding vector.
     """
     try:
-        embedding_vector = embeddings.embed_query(request.text)
+        embedding_vector = embeddings.embed_query(text)
 
         return EmbeddingResponse(embedding=embedding_vector)
 
