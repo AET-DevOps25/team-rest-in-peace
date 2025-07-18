@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/browse")
 public class Controller {
 
     @Autowired

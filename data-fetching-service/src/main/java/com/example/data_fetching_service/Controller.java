@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/data")
 public class Controller {
     @Autowired
     private ApiService apiService;
