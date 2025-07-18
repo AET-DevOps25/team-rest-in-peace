@@ -99,7 +99,7 @@ public interface SpeechRepository extends JpaRepository<Speech, Integer> {
     @Query(value = """
               SELECT p.party as party,
                 pp.date as protocolDate,
-                ARRAY_LENGTH(REGEXP_SPLIT_TO_ARRAY(s.text_plain, '\\\\s+'), 1) as wordCount,
+                ARRAY_LENGTH(REGEXP_SPLIT_TO_ARRAY(s.text_plain, '\\s+'), 1) as wordCount,
                 p.first_name as firstName,
                 p.last_name as lastName,
                 ai.title as agendaItemTitle,
