@@ -58,3 +58,11 @@ client:
   tag: "latest"
   imagePullPolicy: Always
   port: 3000
+
+prometheus:
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/prometheus:latest"
+  port: 9090
+
+grafana:
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/prometheus:latest"
+  port: 9091

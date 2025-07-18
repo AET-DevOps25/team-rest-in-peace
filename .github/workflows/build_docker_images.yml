@@ -19,6 +19,8 @@ jobs:
             browsing-service,
             client,
             notification-service,
+            prometheus,
+            grafana
           ]
     steps:
       - name: Checkout

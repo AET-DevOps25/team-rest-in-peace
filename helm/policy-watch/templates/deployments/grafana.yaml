@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: team-rest-in-peace-monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: "{{ .Values.grafana.image }}"
+          env:
+            - name: GF_SERVER_ROOT_URL
+              value: /grafana/
+            - name: GF_SERVER_SERVE_FROM_SUB_PATH
+              value: "true"
+            - name: POSTGRES_DB
+              value: users
+            - name: GF_SECURITY_ADMIN_USER
+              value: admin
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: admin
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: "false"
+            - name: GF_FEATURE_TOGGLES_ENABLE
+              value: logsInExplore
+            - name: GF_LOG_CONSOLECOLORS
+              value: "true"
+            - name: PROMETHEUS_URL
+              value: http://prometheus-service:9090/prometheus
+            - name: LOKI_URL
+              value: http://loki-service:9092
+          ports:
+            - containerPort: 3000
