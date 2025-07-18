@@ -33,6 +33,9 @@ public class BrowsingService {
     @Autowired
     private AgendaItemRepository agendaItemRepository;
 
+    @Value("${genai.service.baseurl}")
+    private String genaiBaseUrl;
+
     public StatisticsDto getStatistics() {
         logger.info("Fetching statistics...");
 
