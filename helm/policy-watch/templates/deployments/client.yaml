@@ -21,3 +21,6 @@ spec:
           imagePullPolicy: {{ .Values.client.imagePullPolicy | default "IfNotPresent" }}
           ports:
             - containerPort: {{ .Values.client.port }}
+          envFrom:
+            - configMapRef:
+                name: client-config

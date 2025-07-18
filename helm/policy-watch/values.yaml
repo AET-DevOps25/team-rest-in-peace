@@ -38,7 +38,7 @@ browsingService:
   image: "ghcr.io/aet-devops25/team-rest-in-peace/browsing-service"
   tag: "latest"
   imagePullPolicy: Always
-  port: 8080
+  port: 8081
   db:
     username: "browsing_user"
     password: "browsing_password"
@@ -47,7 +47,7 @@ notificationService:
   image: "ghcr.io/aet-devops25/team-rest-in-peace/notification-service"
   tag: "latest"
   imagePullPolicy: Always
-  port: 8080
+  port: 8082
   mailProviderApiKey: "your_mail_provider_api_key"
   db:
     username: "notification_user"
