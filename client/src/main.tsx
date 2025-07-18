@@ -5,9 +5,11 @@ import LandingPage from "./page/LandingPage/LandingPage.tsx";
 import PlenarySessionListPage from "./page/LandingPage/PlenarySessionListPage/PlenarySessionListPage.tsx";
 import CategoryLayout from "./components/layouts/CategoryLayout.tsx";
 import SpeakerStatisticsListPage from "./page/LandingPage/SpeakerStatisticsListPage/SpeakerStatisticsListPage.tsx";
+import PartyStatisticsListPage from "./page/LandingPage/PartyStatisticsListPage/PartyStatisticsListPage.tsx";
 import SpeechListPage from "./page/LandingPage/SpeechListPage/SpeechListPage.tsx";
 import GenerallLayout from "./components/layouts/GenerallLayout.tsx";
 import UnsubscribePage from "./page/UnsubscribePage/UnsubscribePage.tsx";
+import SpeechSearchPage from "@/page/LandingPage/SpeechSearchPage/SpeechSearchPage";
 
 const router = createBrowserRouter([
   {
@@ -29,10 +31,10 @@ const router = createBrowserRouter([
         path: "partei",
         element: (
           <CategoryLayout
-            title="Reden nach Parteien"
-            subtitle="Durchsuchen Sie Reden sortiert nach Partei und Datum"
+            title="Parteien im Überblick"
+            subtitle="Entdecken Sie Reden und Statistiken der Parteien"
           >
-            <SpeechListPage />
+            <PartyStatisticsListPage />
           </CategoryLayout>
         ),
       },
@@ -47,6 +49,17 @@ const router = createBrowserRouter([
           </CategoryLayout>
         ),
       },
+      {
+        path: "reden",
+        element: (
+          <CategoryLayout
+            title="Fortgeschrittene Redensuche"
+            subtitle="Durchsuchen Sie Reden mit natürlicher Sprache und erweiterten Filtern"
+          >
+            <SpeechSearchPage />
+          </CategoryLayout>
+        ),
+      },
     ],
   },
   {
@@ -58,7 +71,15 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "reden/:speakerId",
+    path: "redner/:speakerId",
+    element: (
+      <GenerallLayout>
+        <SpeechListPage />
+      </GenerallLayout>
+    ),
+  },
+  {
+    path: "partei/:partyName",
     element: (
       <GenerallLayout>
         <SpeechListPage />

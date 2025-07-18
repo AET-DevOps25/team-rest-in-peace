@@ -11,6 +11,7 @@ const LandingPage = () => {
     PLENARPROTOKOLL: "plenarprotokoll",
     PARTEI: "partei",
     REDNER: "redner",
+    REDEN: "reden",
   } as const;
   type TabValues = (typeof TabValues)[keyof typeof TabValues];
 
@@ -19,6 +20,8 @@ const LandingPage = () => {
     ? TabValues.REDNER
     : path.includes("partei")
     ? TabValues.PARTEI
+    : path.includes("reden")
+    ? TabValues.REDEN
     : TabValues.PLENARPROTOKOLL; // default to plenarprotokoll
 
   const handleTabChange = (value: string) => {
@@ -87,6 +90,14 @@ const LandingPage = () => {
               } p-1`}
             >
               Nach Redner
+            </TabsTrigger>
+            <TabsTrigger
+              value={TabValues.REDEN}
+              className={`${
+                currentTab === TabValues.REDEN ? "" : "text-muted-foreground"
+              } p-1`}
+            >
+              Nach Reden
             </TabsTrigger>
           </TabsList>
 

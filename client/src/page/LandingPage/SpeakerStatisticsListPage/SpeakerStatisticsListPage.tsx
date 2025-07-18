@@ -22,7 +22,7 @@ const SpeakerStatisticsListPage = () => {
   const navigate = useNavigate();
 
   const handleClick = (speaker: SpeakerStatisticDto) => {
-    navigate(`/reden/${speaker.personId}`);
+    navigate(`/redner/${speaker.personId}`);
   };
 
   if (error) return <div>Error: {error}</div>;

@@ -1,0 +1,255 @@
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Search } from "lucide-react";
+import { getPartyColor, Party } from "@/global";
+import useSpeechStore from "@/store/speechStore";
+import useSpeakerStatisticsStore from "@/store/speakerStatisticStore";
+import type { SpeakerStatisticDto } from "@/types/SpeakerStatisticDto";
+import { MultiSelectCombobox, type ComboboxItem } from "@/components/ui/multi-select-combobox";
+
+interface SearchSectionProps {
+  onSearch?: (searchText: string, parties?: string[], speakerIds?: number[]) => void;
+}
+
+const SearchSection = ({ onSearch }: SearchSectionProps) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchText, setSearchText] = useState(searchParams.get("searchText") || "");
+  const partyParams = searchParams.getAll("party");
+  const [selectedParties, setSelectedParties] = useState<string[]>(partyParams);
+
+  // Parse speakerIds from URL params
+  const speakerIdsParam = searchParams.getAll("speakerIds");
+  const [selectedSpeakers, setSelectedSpeakers] = useState<number[]>(
+    speakerIdsParam.map(id => parseInt(id, 10))
+  );
+
+  // State for politicians list
+  const [politicians, setPoliticians] = useState<SpeakerStatisticDto[]>([]);
+  const [politicianItems, setPoliticianItems] = useState<ComboboxItem[]>([]);
+
+  const loading = useSpeechStore((state) => state.loading);
+  const { speakers, loading: speakersLoading, fetchSpeakers } = useSpeakerStatisticsStore();
+
+  // Fetch politicians on component mount
+  useEffect(() => {
+    fetchSpeakers(0, 100); // Fetch first 100 politicians
+  }, [fetchSpeakers]);
+
+  // Update politicians list when speakers are loaded
+  useEffect(() => {
+    if (speakers.length > 0) {
+      setPoliticians(speakers);
+
+      // Convert speakers to ComboboxItem format
+      const items: ComboboxItem[] = speakers.map(speaker => ({
+        value: speaker.personId.toString(),
+        label: `${speaker.firstName} ${speaker.lastName}`,
+        color: getPartyColor(speaker.party) + " text-white"
+      }));
+
+      setPoliticianItems(items);
+    }
+  }, [speakers]);
+
+  // Filter politicians based on selected parties
+  useEffect(() => {
+    if (selectedParties.length > 0 && politicians.length > 0) {
+      // Filter politicians by selected parties and convert to ComboboxItem format
+      const filteredItems: ComboboxItem[] = politicians
+        .filter(p => selectedParties.includes(p.party))
+        .map(speaker => ({
+          value: speaker.personId.toString(),
+          label: `${speaker.firstName} ${speaker.lastName}`,
+          color: getPartyColor(speaker.party) + " text-white"
+        }));
+
+      setPoliticianItems(filteredItems);
+    } else if (politicians.length > 0) {
+      // If no party filter, show all politicians
+      const allItems: ComboboxItem[] = politicians.map(speaker => ({
+        value: speaker.personId.toString(),
+        label: `${speaker.firstName} ${speaker.lastName}`,
+        color: getPartyColor(speaker.party) + " text-white"
+      }));
+
+      setPoliticianItems(allItems);
+    }
+  }, [selectedParties, politicians]);
+
+  const handleSearch = () => {
+    if (loading) return;
+
+    const newParams = new URLSearchParams(searchParams);
+
+    if (searchText) {
+      newParams.set("searchText", searchText);
+    } else {
+      newParams.delete("searchText");
+    }
+
+    // Clear existing speakerIds
+    newParams.delete("speakerIds");
+
+    // Add selected speakers to params
+    selectedSpeakers.forEach(id => {
+      newParams.append("speakerIds", id.toString());
+    });
+
+    setSearchParams(newParams, { replace: true });
+
+    // Only call onSearch if there's text in the search field
+    if (onSearch) {
+      onSearch(
+        searchText, 
+        selectedParties.length > 0 ? selectedParties : undefined,
+        selectedSpeakers.length > 0 ? selectedSpeakers : undefined
+      );
+    }
+  };
+
+  const toggleParty = (party: string) => {
+    if (loading) return;
+
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("party"); // Remove all existing party params
+
+    let newSelectedParties: string[];
+
+    if (selectedParties.includes(party)) {
+      // Remove party if already selected
+      newSelectedParties = selectedParties.filter(p => p !== party);
+    } else {
+      // Add party if not selected
+      newSelectedParties = [...selectedParties, party];
+    }
+
+    // Add all selected parties to URL params
+    newSelectedParties.forEach(p => {
+      newParams.append("party", p);
+    });
+
+    setSelectedParties(newSelectedParties);
+    setSearchParams(newParams, { replace: true });
+  };
+
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="mb-2 text-2xl">Suche</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Natürliche Sprache Suche..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+                }
+              }}
+              className="flex-1"
+            />
+            <Button onClick={handleSearch} disabled={loading}>
+              <Search className="w-4 h-4 mr-2" />
+              Suchen
+            </Button>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium mb-2">Partei Filter</h3>
+            <div className="flex flex-wrap gap-2">
+              {Object.values(Party).map((party) => (
+                <Badge
+                  key={party}
+                  variant={selectedParties.includes(party) ? "default" : "outline"}
+                  className={`cursor-pointer ${
+                    selectedParties.includes(party)
+                      ? getPartyColor(party) + " text-white"
+                      : ""
+                  } ${loading ? "opacity-50 pointer-events-none" : ""}`}
+                  onClick={() => toggleParty(party)}
+                >
+                  <div className="text-sm">{party}</div>
+                </Badge>
+              ))}
+              {selectedParties.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    setSelectedParties([]);
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("party");
+                    setSearchParams(newParams, { replace: true });
+                  }}
+                  disabled={loading}
+                >
+                  Alle Parteien zurücksetzen
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium mb-2">Politiker Filter</h3>
+            {speakersLoading ? (
+              <div className="text-sm text-muted-foreground p-2 border rounded-md">Lade Politiker...</div>
+            ) : politicianItems.length === 0 ? (
+              <div className="text-sm text-muted-foreground p-2 border rounded-md">Keine Politiker gefunden</div>
+            ) : (
+              <MultiSelectCombobox
+                items={politicianItems}
+                placeholder="Politiker auswählen..."
+                searchPlaceholder="Politiker suchen..."
+                emptyMessage="Keine Politiker gefunden"
+                selectedValues={selectedSpeakers.map(id => id.toString())}
+                onValueChange={(values) => {
+                  const newSelectedSpeakers = values.map(v => parseInt(v, 10));
+                  setSelectedSpeakers(newSelectedSpeakers);
+
+                  // Update URL params
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.delete("speakerIds");
+
+                  newSelectedSpeakers.forEach(id => {
+                    newParams.append("speakerIds", id.toString());
+                  });
+
+                  setSearchParams(newParams, { replace: true });
+                }}
+                disabled={loading}
+                className="mb-2"
+              />
+            )}
+            {selectedSpeakers.length > 0 && (
+              <div className="mt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    setSelectedSpeakers([]);
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete("speakerIds");
+                    setSearchParams(newParams, { replace: true });
+                  }}
+                  disabled={loading}
+                >
+                  Alle Politiker zurücksetzen
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default SearchSection;
