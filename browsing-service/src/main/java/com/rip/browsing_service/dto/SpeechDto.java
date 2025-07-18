@@ -10,4 +10,5 @@ public interface SpeechDto {
     String getTextSummary();
     String getTextPlain();
     String getProtocolName();
+    Double getSimilarity();
 }

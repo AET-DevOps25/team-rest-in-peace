@@ -70,11 +70,13 @@ public class Controller {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String party,
-            @RequestParam(required = false) Integer speakerId,
-            @RequestParam(required = false) Integer plenaryProtocolId
+            @RequestParam(required = false) List<Integer> speakerIds,
+            @RequestParam(required = false) Integer plenaryProtocolId,
+            @RequestParam(required = false) String searchText,
+            @RequestParam(defaultValue = "0.5") Float searchSimilarityThreshold
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return browsingService.getAllSpeechDetails(pageable, party, speakerId, plenaryProtocolId);
+        return browsingService.getAllSpeechDetails(pageable, party, speakerIds, plenaryProtocolId, searchText, searchSimilarityThreshold);
     }
 
     @GetMapping("plenary-protocols/{id}/name")
