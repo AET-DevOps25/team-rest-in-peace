@@ -1,5 +1,6 @@
 package com.rip.notification_service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +13,9 @@ import java.util.List;
 
 @Configuration
 public class WebConfig {
+
+    @Value("${client.base.url}")
+    private String baseUrl;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,7 +33,8 @@ public class WebConfig {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOriginPatterns(
                 List.of("http://localhost**",
-                        "https://rest-in-peace.student.k8s.aet.cit.tum.de")
+                        "https://rest-in-peace.student.k8s.aet.cit.tum.de",
+                        baseUrl)
         );
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));

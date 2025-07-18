@@ -80,7 +80,7 @@ public class EmailService {
                     String partyUrl = UriComponentsBuilder
                             .fromUriString(clientBaseUrl)
                             .path("/partei")
-                            .queryParam("party", party)
+                            .path(party)
                             .build()
                             .encode()
                             .toUriString();
@@ -102,7 +102,7 @@ public class EmailService {
                 .map(speaker -> {
                     String speakerUrl = UriComponentsBuilder
                             .fromUriString(clientBaseUrl)
-                            .path("/reden/{id}")
+                            .path("/redner/{id}")
                             .buildAndExpand(speaker.getId())
                             .encode()
                             .toUriString();
