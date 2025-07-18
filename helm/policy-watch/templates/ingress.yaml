@@ -49,31 +49,3 @@ spec:
                 name: notification-service
                 port:
                   number: {{ .Values.notificationService.port }}
-          - path:
-            pathType: Exact
-            backend:
-              service:
-                name: genai-service
-                port:
-                  number: {{ .Values.genaiService.port }}
-          - path: /api-docs/notification
-            pathType: Exact
-            backend:
-              service:
-                name: notification-service
-                port:
-                  number: {{ .Values.notificationService.port }}
-          - path: /api-docs/data-fetching
-            pathType: Exact
-            backend:
-              service:
-                name: data-fetching-service
-                port:
-                  number: {{ .Values.dataFetchingService.port }}
-          - path: /api-docs/browsing
-            pathType: Exact
-            backend:
-              service:
-                name: browsing-service
-                port:
-                  number: {{ .Values.browsingService.port }}
