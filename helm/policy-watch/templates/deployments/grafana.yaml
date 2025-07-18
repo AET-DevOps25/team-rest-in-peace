@@ -37,5 +37,7 @@ spec:
               value: http://prometheus-service:9090/prometheus
             - name: LOKI_URL
               value: http://loki-service:9092
+            - name: GF_UNIFIED_ALERTING_ENABLED
+              value: "true"
           ports:
             - containerPort: 3000

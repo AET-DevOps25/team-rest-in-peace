@@ -136,6 +136,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_FEATURE_TOGGLES_ENABLE=logsInExplore
       - GF_LOG_CONSOLECOLORS=true
+      - GF_UNIFIED_ALERTING_ENABLED=true
       - PROMETHEUS_URL=http://prometheus:${PROMETHEUS_PORT}
       - LOKI_URL=http://loki:${LOKI_PORT}
       - GF_SECURITY_ALLOW_ORIGIN=http://localhost
