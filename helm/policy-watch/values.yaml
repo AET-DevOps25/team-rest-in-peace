@@ -21,7 +21,7 @@ genaiService:
     password: "genai_password"
 
 dataFetchingService:
-  image: "ghcr.io/aet-devops25/team-rest-in-peace/data-fetching-service:latest"
+  image: "data-fetching:local"
   port: 8080
   bundestagApiKey: "your_bundestag_api_key"
   db:
@@ -36,7 +36,7 @@ browsingService:
     password: "browsing_password"
 
 notificationService:
-  image: "ghcr.io/aet-devops25/team-rest-in-peace/notification-service:latest"
+  image: "notification-service:local"
   port: 8082
   mailProviderApiKey: "your_mail_provider_api_key"
   db:
@@ -46,3 +46,11 @@ notificationService:
 client:
   image: "ghcr.io/aet-devops25/team-rest-in-peace/client:latest"
   port: 3000
+
+prometheus:
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/prometheus:latest"
+  port: 9090
+
+grafana:
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/prometheus:latest"
+  port: 9091
