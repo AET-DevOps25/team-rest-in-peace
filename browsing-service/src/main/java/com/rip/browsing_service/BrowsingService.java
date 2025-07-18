@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -133,7 +132,16 @@ public class BrowsingService {
         return speechRepository.findAllSpeakerStatistics(pageable);
     }
 
-    public Page<SpeechDto> getAllSpeechDetails(Pageable pageable, String party, List<Integer> speakerIds, Integer plenaryProtocolId, String searchText, float searchSimilarityThreshold) {
+
+    public List<PartyStatisticsDto> getAllPartyStatistics() {
+        logger.info("Fetching party statistics...");
+        List<PartyStatisticsDto> partyStatistics = speechRepository.findAllPartyStatistics();
+        logger.info("Party statistics fetched successfully: {} parties found", partyStatistics.size());
+        return partyStatistics;
+    }
+
+    public Page<SpeechDto> getAllSpeechDetails(Pageable pageable, List<String> parties, List<Integer> speakerIds, Integer plenaryProtocolId, String searchText, float searchSimilarityThreshold) {
+        logger.info("Fetching speech details... {}", speakerIds);
         if (searchText != null && !searchText.isBlank()) {
             try {
                 URI genaiEmbeddingUrlPath = UriComponentsBuilder.fromUriString(genaiBaseUrl).path("embedding").queryParam("text", searchText).build().toUri();
@@ -149,7 +157,7 @@ public class BrowsingService {
                     String embedding = responseJson.get("embedding").toString();
 
                     return speechRepository.findAllSpeechDetailsFilteredOrderedByEmbeddingSimilarity(
-                            pageable, party, speakerIds, plenaryProtocolId, embedding, searchSimilarityThreshold);
+                            pageable, parties, parties.size(), speakerIds, speakerIds.size(), plenaryProtocolId, embedding, searchSimilarityThreshold);
                 } else {
                     logger.error("Failed to get embedding from genAI service: {}", response.body());
                 }
@@ -157,7 +165,8 @@ public class BrowsingService {
                 logger.error("Error while getting embedding from genAI service", e);
             }
         }
-        return speechRepository.findAllSpeechDetailsFiltered(pageable, party, speakerIds, plenaryProtocolId);
+        logger.info("Party: {}", parties);
+        return speechRepository.findAllSpeechDetailsFiltered(pageable, parties,parties.size(), speakerIds, speakerIds.size(), plenaryProtocolId);
     }
 
     public String getPlenaryProtocolName(int id) {
@@ -175,4 +184,5 @@ public class BrowsingService {
                 })
                 .orElseThrow(() -> new NoSuchElementException("Person not found with id: " + id));
     }
+
 }

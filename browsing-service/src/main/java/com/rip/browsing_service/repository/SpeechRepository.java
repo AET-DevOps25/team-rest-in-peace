@@ -1,5 +1,6 @@
 package com.rip.browsing_service.repository;
 
+import com.rip.browsing_service.dto.PartyStatisticsDto;
 import com.rip.browsing_service.dto.SpeakerStatisticDto;
 import com.rip.browsing_service.dto.SpeechDto;
 import com.rip.browsing_service.model.Speech;
@@ -76,8 +77,8 @@ public interface SpeechRepository extends JpaRepository<Speech, Integer> {
             JOIN person p ON s.person_id = p.id
             JOIN agenda_item ai ON s.agenda_item_id = ai.id
             JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
-            WHERE (:party IS NULL OR p.party = :party)
-              AND (:speakerIds IS NULL OR p.id in :speakerIds)
+            WHERE (:partiesSize = 0 OR p.party in :parties)
+              AND (:speakerIdsSize = 0 OR p.id in :speakerIds)
               AND (:plenaryProtocolId IS NULL OR pp.id = :plenaryProtocolId)
             ORDER BY pp.date DESC NULLS LAST,
                      ARRAY_LENGTH(REGEXP_SPLIT_TO_ARRAY(s.text_plain, '\\s+'), 1) DESC
@@ -88,12 +89,12 @@ public interface SpeechRepository extends JpaRepository<Speech, Integer> {
                     JOIN person p ON s.person_id = p.id
                     JOIN agenda_item ai ON s.agenda_item_id = ai.id
                     JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
-                    WHERE (:party IS NULL OR p.party = :party)
-                      AND (:speakerIds IS NULL OR p.id in :speakerIds)
+                    WHERE (:partiesSize = 0 OR p.party in :parties)
+                      AND (:speakerIdsSize = 0 OR p.id in :speakerIds)
                       AND (:plenaryProtocolId IS NULL OR pp.id = :plenaryProtocolId)
                     """,
             nativeQuery = true)
-    Page<SpeechDto> findAllSpeechDetailsFiltered(Pageable pageable, String party, List<Integer> speakerIds, Integer plenaryProtocolId);
+    Page<SpeechDto> findAllSpeechDetailsFiltered(Pageable pageable, List<String> parties, Integer partiesSize, List<Integer> speakerIds, Integer speakerIdsSize, Integer plenaryProtocolId);
 
     @Query(value = """
               SELECT p.party as party,
@@ -111,8 +112,8 @@ public interface SpeechRepository extends JpaRepository<Speech, Integer> {
             JOIN person p ON s.person_id = p.id
             JOIN agenda_item ai ON s.agenda_item_id = ai.id
             JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
-            WHERE (:party IS NULL OR p.party = :party)
-              AND (:speakerIds IS NULL OR p.id in :speakerIds)
+            WHERE (:partiesSize = 0 OR p.party in :parties)
+              AND (:speakerIdsSize = 0 OR p.id in :speakerIds)
               AND (:plenaryProtocolId IS NULL OR pp.id = :plenaryProtocolId)
               AND (1 - (s.text_embedding <=> CAST(:embedding AS vector))) >= :similarityThreshold
             ORDER BY similarity DESC
@@ -123,11 +124,29 @@ public interface SpeechRepository extends JpaRepository<Speech, Integer> {
                     JOIN person p ON s.person_id = p.id
                     JOIN agenda_item ai ON s.agenda_item_id = ai.id
                     JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
-                    WHERE (:party IS NULL OR p.party = :party)
-                      AND (:speakerIds IS NULL OR p.id in :speakerIds)
+                    WHERE (:partiesSize = 0 OR p.party in :parties)
+                      AND (:speakerIdsSize = 0 OR p.id in :speakerIds)
                       AND (:plenaryProtocolId IS NULL OR pp.id = :plenaryProtocolId)
                       AND (1 - (s.text_embedding <=> CAST(:embedding AS vector))) >= :similarityThreshold
                     """,
             nativeQuery = true)
-    Page<SpeechDto> findAllSpeechDetailsFilteredOrderedByEmbeddingSimilarity(Pageable pageable, String party, List<Integer> speakerIds, Integer plenaryProtocolId, String embedding, float similarityThreshold);
+    Page<SpeechDto> findAllSpeechDetailsFilteredOrderedByEmbeddingSimilarity(Pageable pageable, List<String> parties, Integer partiesSize, List<Integer> speakerIds, Integer speakerIdsSize, Integer plenaryProtocolId, String embedding, float similarityThreshold);
+
+    @Query(value = """
+            SELECT
+                p.party as party,
+                COUNT(s.id) as speechCount,
+                SUM(ARRAY_LENGTH(REGEXP_SPLIT_TO_ARRAY(s.text_plain, '\\s+'), 1)) as totalWords,
+                COUNT(DISTINCT p.id) as personCount,
+                MAX(pp.date) as lastSpeechDate
+            FROM person p
+            JOIN speech s ON p.id = s.person_id
+            JOIN agenda_item ai ON s.agenda_item_id = ai.id
+            JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
+            WHERE p.party IS NOT NULL
+            GROUP BY p.party
+            ORDER BY totalWords DESC
+            """,
+            nativeQuery = true)
+    List<PartyStatisticsDto> findAllPartyStatistics();
 }
