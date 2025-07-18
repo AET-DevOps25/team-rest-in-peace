@@ -40,8 +40,8 @@ This document provides instructions for setting up and running the Policy Watch 
 
 4. **Access the application:**
    - The client application will be available at http://localhost:80
-   - Grafana dashboard will be available at http://localhost:80/dev/grafana
-   - OpenAPI documentation (SwaggerUI) will be available at http://localhost:80/api-docs
+   - Grafana dashboard will be available at http://localhost:9091
+   - OpenAPI documentation (SwaggerUI) will be available at http://localhost:80/docs
 
 ## AWS Deployment
 
