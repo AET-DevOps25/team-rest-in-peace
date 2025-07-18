@@ -1,11 +1,6 @@
 name: CI for Browsing Service
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'browsing-service/**'
   pull_request:
     branches:
       - main

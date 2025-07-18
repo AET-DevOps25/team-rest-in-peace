@@ -7,6 +7,7 @@ import com.rip.notification_service.dto.TestSubscriptionRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(Controller.class)
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 public class ControllerTest {
 
@@ -116,26 +118,10 @@ public class ControllerTest {
 
     @Test
     public void testNotify_Success() throws Exception {
-        when(apiService.notifyAll(anyList()))
-                .thenReturn(new ApiService.Result(true, null));
-
         mockMvc.perform(post("/notify")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validNotificationRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
+                .andExpect(status().isAccepted());
     }
 
-    @Test
-    public void testNotify_Failure() throws Exception {
-        when(apiService.notifyAll(anyList()))
-                .thenReturn(new ApiService.Result(false, "Error sending notifications"));
-
-        mockMvc.perform(post("/notify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validNotificationRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.error").value("Error sending notifications"));
-    }
 }

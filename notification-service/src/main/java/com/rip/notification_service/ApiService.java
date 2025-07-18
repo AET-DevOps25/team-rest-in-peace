@@ -8,11 +8,11 @@ import com.rip.notification_service.repository.PersonRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -80,9 +80,8 @@ public class ApiService {
         return new Result(true, null);
     }
 
-
-    public Result notifyAll(List<Integer> plenaryProtocolIds) {
-
+    @Async
+    public void notifyAllAsync(List<Integer> plenaryProtocolIds) {
         buildAndSendNotificationPlenaryProtocol(plenaryProtocolIds);
 
         List<Person> distinctSpeakers = personRepository.findDistinctPersonsByPlenaryProtocolIds(plenaryProtocolIds);
@@ -91,7 +90,6 @@ public class ApiService {
 
         buildAndSendNotificationPerson(distinctSpeakers);
 
-        return new Result(true, null);
     }
 
     public void buildAndSendNotificationPlenaryProtocol(List<Integer> plenaryProtocolIds) {
@@ -127,17 +125,24 @@ public class ApiService {
 
     public void buildAndSendNotificationPerson(List<Person> speakers) {
         List<NotificationSetting> notificationSettings = notificationSettingRepository.findAllByType("PERSON");
-        notificationSettings
-                .stream()
-                .filter(notificationSetting -> speakers.contains(notificationSetting.getPerson()))
-                .collect(Collectors.groupingBy(NotificationSetting::getEmail)).forEach((email, groupedNotificationSettings) -> {
-                    Set<Person> speakersByEmail = groupedNotificationSettings.stream().map(NotificationSetting::getPerson).distinct().collect(Collectors.toSet());
-                    try {
-                        emailService.sendPersonNotification(email, speakersByEmail);
-                        logger.info("Person notification sent to " + email);
-                    } catch (Exception e) {
-                        logger.error("Email Error for Person notification: " + e.getMessage());
-                    }
-                });
+        Map<String, Set<Person>> byEmail = notificationSettings.stream()
+                .filter(ns ->
+                        speakers.stream()
+                                .anyMatch(p -> p.getId().equals(ns.getPerson().getId()))
+                )
+                .collect(Collectors.groupingBy(
+                        NotificationSetting::getEmail,
+                        Collectors.mapping(NotificationSetting::getPerson, Collectors.toSet())
+                ));
+
+        byEmail.forEach((email, persons) -> {
+            try {
+                emailService.sendPersonNotification(email, persons);
+                logger.info("Person notification sent to " + email);
+            } catch (Exception e) {
+                logger.error("Email Error for Person notification: " + e.getMessage());
+            }
+        });
     }
+
 }
