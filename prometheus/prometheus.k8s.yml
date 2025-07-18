@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'genai-service'
+    static_configs:
+      - targets: [ 'genai-service.team-rest-in-peace:8000' ]
+
+  - job_name: 'data-fetching-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'data-fetching-service.team-rest-in-peace:8080' ]
+
+  - job_name: 'browsing-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'browsing-service.team-rest-in-peace:8081' ]
+
+  - job_name: 'notification-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'notification-service.team-rest-in-peace:8082' ]
