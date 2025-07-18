@@ -62,7 +62,7 @@ const SpeechListPage = () => {
         hasMore: page + 1 < totalPages,
         onLoadMore: () =>
             fetchSpeeches(page + 1, 10, true, {
-                parties: party,
+                parties: party ? [party] : undefined,
                 speakerIds: speakerIdParsed ? [speakerIdParsed] : undefined,
                 plenaryProtocolId: plenaryProtocolIdParsed,
             }),
