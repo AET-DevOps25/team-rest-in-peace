@@ -71,6 +71,7 @@ async def get_db_connection():
         database=NLP_DB_NAME,
     )
 
+
 class SummaryRequest(BaseModel):
     text: str = (
         "Dies ist eine Rede aus dem Deutschen Bundestag über die Energiepolitik."
@@ -105,6 +106,7 @@ class CombinedResponse(BaseModel):
 class ProcessSpeechesRequest(BaseModel):
     speech_ids: List[int] = [101, 102, 103]
     plenary_id: int = 17
+
 
 @app.get("/health", summary="Health Check", description="Check if the API is running.")
 def health_check():
