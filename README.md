@@ -161,16 +161,28 @@ Due to time constraints, we created two separate dashboards instead of consolida
 
 **Deploy to K8s** - Deploys the application to Kubernetes using Helm charts after successful Docker image builds, managing configuration and secrets injection.
 
-## Diagrams
-![Component Diagram](documentation/component-diagram.png)
-*Component Diagram*
+##Diagram
 
-![Use Case Diagram](documentation/use-case-diagram.png)
-*Use Case Diagram*
+<figure>
+  <img src="documentation/component-diagram.png" alt="Component Diagram" style="height: 450px;">
+  <figcaption>Component Diagram</figcaption>
+</figure>
 
-![Database Diagram](documentation/database-diagram.png)
-*Database Diagram*
+<figure>
+  <img src="documentation/use-case-diagram.png" alt="Use Case Diagram" style="height: 450px;">
+  <figcaption>Use Case Diagram</figcaption>
+</figure>
 
-![Analysis Object Model](documentation/analysis-object-model.png)
-*Analysis Object Model*
+<figure>
+  <img src="documentation/database-diagram.png" alt="Database Diagram" style="height: 450px;">
+  <figcaption>Database Diagram</figcaption>
+</figure>
+
+<figure>
+  <img src="documentation/analysis-object-model.png" alt="Analysis Object Model" style="height: 450px;">
+  <figcaption>Analysis Object Model</figcaption>
+</figure>
+
+
+
 
