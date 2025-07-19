@@ -32,7 +32,7 @@ const SpeakerStatisticCard = ({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center gap-2">
                 <div className="flex flex-row items-center gap-2">
                   {speaker.firstName} {speaker.lastName}
                   <div className="flex items-center gap-2">

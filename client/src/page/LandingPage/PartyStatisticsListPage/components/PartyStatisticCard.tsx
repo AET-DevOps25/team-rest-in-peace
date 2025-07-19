@@ -12,10 +12,7 @@ interface PartyStatisticCardProps {
   onClick?: () => void;
 }
 
-const PartyStatisticCard = ({
-  party,
-  onClick,
-}: PartyStatisticCardProps) => {
+const PartyStatisticCard = ({ party, onClick }: PartyStatisticCardProps) => {
   const [showNotificationModal, setShowNotificationModal] = useState(false);
 
   return (
@@ -32,30 +29,27 @@ const PartyStatisticCard = ({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg">
-              <div className="flex justify-between items-center">
-                <div className="flex flex-row items-center gap-2">
-                  {party.party}
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size={"sm"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowNotificationModal(true);
-                      }}
-                    >
-                      <Bell className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
+              <div className="flex justify-between items-center gap-2">
                 <div className="flex items-center gap-2">
                   <Badge
                     className={`${getPartyColor(
                       party.party
-                    )} text-white text-xs`}
+                    )} text-white text-sm`}
                   >
                     {party.party}
                   </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size={"sm"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowNotificationModal(true);
+                    }}
+                  >
+                    <Bell className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             </CardTitle>

@@ -4,27 +4,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { getPartyColor, Party } from "@/global";
 import useSpeechStore from "@/store/speechStore";
 import useSpeakerStatisticsStore from "@/store/speakerStatisticStore";
 import type { SpeakerStatisticDto } from "@/types/SpeakerStatisticDto";
-import { MultiSelectCombobox, type ComboboxItem } from "@/components/ui/multi-select-combobox";
+import {
+  MultiSelectCombobox,
+  type ComboboxItem,
+} from "@/components/ui/multi-select-combobox";
 
 interface SearchSectionProps {
-  onSearch?: (searchText: string, parties?: string[], speakerIds?: number[]) => void;
+  onSearch?: (
+    searchText: string,
+    parties?: string[],
+    speakerIds?: number[]
+  ) => void;
 }
 
 const SearchSection = ({ onSearch }: SearchSectionProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchText, setSearchText] = useState(searchParams.get("searchText") || "");
+  const [searchText, setSearchText] = useState(
+    searchParams.get("searchText") || ""
+  );
   const partyParams = searchParams.getAll("party");
   const [selectedParties, setSelectedParties] = useState<string[]>(partyParams);
 
   // Parse speakerIds from URL params
   const speakerIdsParam = searchParams.getAll("speakerIds");
   const [selectedSpeakers, setSelectedSpeakers] = useState<number[]>(
-    speakerIdsParam.map(id => parseInt(id, 10))
+    speakerIdsParam.map((id) => parseInt(id, 10))
   );
 
   // State for politicians list
@@ -32,7 +41,11 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
   const [politicianItems, setPoliticianItems] = useState<ComboboxItem[]>([]);
 
   const loading = useSpeechStore((state) => state.loading);
-  const { speakers, loading: speakersLoading, fetchSpeakers } = useSpeakerStatisticsStore();
+  const {
+    speakers,
+    loading: speakersLoading,
+    fetchSpeakers,
+  } = useSpeakerStatisticsStore();
 
   // Fetch politicians on component mount
   useEffect(() => {
@@ -45,10 +58,10 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
       setPoliticians(speakers);
 
       // Convert speakers to ComboboxItem format
-      const items: ComboboxItem[] = speakers.map(speaker => ({
+      const items: ComboboxItem[] = speakers.map((speaker) => ({
         value: speaker.personId.toString(),
         label: `${speaker.firstName} ${speaker.lastName}`,
-        color: getPartyColor(speaker.party) + " text-white"
+        color: getPartyColor(speaker.party) + " text-white",
       }));
 
       setPoliticianItems(items);
@@ -60,20 +73,20 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
     if (selectedParties.length > 0 && politicians.length > 0) {
       // Filter politicians by selected parties and convert to ComboboxItem format
       const filteredItems: ComboboxItem[] = politicians
-        .filter(p => selectedParties.includes(p.party))
-        .map(speaker => ({
+        .filter((p) => selectedParties.includes(p.party))
+        .map((speaker) => ({
           value: speaker.personId.toString(),
           label: `${speaker.firstName} ${speaker.lastName}`,
-          color: getPartyColor(speaker.party) + " text-white"
+          color: getPartyColor(speaker.party) + " text-white",
         }));
 
       setPoliticianItems(filteredItems);
     } else if (politicians.length > 0) {
       // If no party filter, show all politicians
-      const allItems: ComboboxItem[] = politicians.map(speaker => ({
+      const allItems: ComboboxItem[] = politicians.map((speaker) => ({
         value: speaker.personId.toString(),
         label: `${speaker.firstName} ${speaker.lastName}`,
-        color: getPartyColor(speaker.party) + " text-white"
+        color: getPartyColor(speaker.party) + " text-white",
       }));
 
       setPoliticianItems(allItems);
@@ -95,7 +108,7 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
     newParams.delete("speakerIds");
 
     // Add selected speakers to params
-    selectedSpeakers.forEach(id => {
+    selectedSpeakers.forEach((id) => {
       newParams.append("speakerIds", id.toString());
     });
 
@@ -104,7 +117,7 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
     // Only call onSearch if there's text in the search field
     if (onSearch) {
       onSearch(
-        searchText, 
+        searchText,
         selectedParties.length > 0 ? selectedParties : undefined,
         selectedSpeakers.length > 0 ? selectedSpeakers : undefined
       );
@@ -121,14 +134,14 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
 
     if (selectedParties.includes(party)) {
       // Remove party if already selected
-      newSelectedParties = selectedParties.filter(p => p !== party);
+      newSelectedParties = selectedParties.filter((p) => p !== party);
     } else {
       // Add party if not selected
       newSelectedParties = [...selectedParties, party];
     }
 
     // Add all selected parties to URL params
-    newSelectedParties.forEach(p => {
+    newSelectedParties.forEach((p) => {
       newParams.append("party", p);
     });
 
@@ -136,11 +149,10 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
     setSearchParams(newParams, { replace: true });
   };
 
-
   return (
-    <Card>
+    <Card className="gap-2">
       <CardHeader>
-        <CardTitle className="mb-2 text-2xl">Suche</CardTitle>
+        <CardTitle className="text-2xl">Suche</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
@@ -154,45 +166,55 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
                   handleSearch();
                 }
               }}
-              className="flex-1"
+              className="w-full flex-grow"
             />
-            <Button onClick={handleSearch} disabled={loading}>
-              <Search className="w-4 h-4 mr-2" />
+            <Button
+              onClick={handleSearch}
+              disabled={loading}
+              className="flex-shrink-0 flex flex-row items-center justify-center gap-2"
+            >
+              <Search className="w-4 h-4" />
               Suchen
             </Button>
           </div>
 
           <div>
             <h3 className="text-sm font-medium mb-2">Partei Filter</h3>
-            <div className="flex flex-wrap gap-2">
-              {Object.values(Party).map((party) => (
-                <Badge
-                  key={party}
-                  variant={selectedParties.includes(party) ? "default" : "outline"}
-                  className={`cursor-pointer ${
-                    selectedParties.includes(party)
-                      ? getPartyColor(party) + " text-white"
-                      : ""
-                  } ${loading ? "opacity-50 pointer-events-none" : ""}`}
-                  onClick={() => toggleParty(party)}
-                >
-                  <div className="text-sm">{party}</div>
-                </Badge>
-              ))}
+            <div className="flex flex-row gap-2 justify-between items-center">
+              <div className="flex flex-wrap gap-2">
+                {Object.values(Party).map((party) => (
+                  <Badge
+                    key={party}
+                    variant={
+                      selectedParties.includes(party) ? "default" : "outline"
+                    }
+                    className={`cursor-pointer ${
+                      selectedParties.includes(party)
+                        ? getPartyColor(party) + " text-white"
+                        : ""
+                    } ${loading ? "opacity-50 pointer-events-none" : ""}`}
+                    onClick={() => toggleParty(party)}
+                  >
+                    <div className="text-sm">{party}</div>
+                  </Badge>
+                ))}
+              </div>
               {selectedParties.length > 0 && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Badge
+                  variant={"outline"}
+                  className={`cursor-pointer bg-gray-50 ${
+                    loading ? "opacity-50 pointer-events-none" : ""
+                  }`}
                   onClick={() => {
                     setSelectedParties([]);
                     const newParams = new URLSearchParams(searchParams);
                     newParams.delete("party");
                     setSearchParams(newParams, { replace: true });
                   }}
-                  disabled={loading}
                 >
-                  Alle Parteien zurücksetzen
-                </Button>
+                  <X />
+                  <div className="text-sm">Zurücksetzen</div>
+                </Badge>
               )}
             </div>
           </div>
@@ -200,39 +222,44 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
           <div>
             <h3 className="text-sm font-medium mb-2">Politiker Filter</h3>
             {speakersLoading ? (
-              <div className="text-sm text-muted-foreground p-2 border rounded-md">Lade Politiker...</div>
-            ) : politicianItems.length === 0 ? (
-              <div className="text-sm text-muted-foreground p-2 border rounded-md">Keine Politiker gefunden</div>
+              <div className="text-sm text-muted-foreground p-2 border rounded-md">
+                Lade Politiker...
+              </div>
             ) : (
               <MultiSelectCombobox
                 items={politicianItems}
-                placeholder="Politiker auswählen..."
+                placeholder={
+                  politicianItems.length === 0
+                    ? "Keine Politiker gefunden"
+                    : "Politiker auswählen..."
+                }
                 searchPlaceholder="Politiker suchen..."
                 emptyMessage="Keine Politiker gefunden"
-                selectedValues={selectedSpeakers.map(id => id.toString())}
+                selectedValues={selectedSpeakers.map((id) => id.toString())}
                 onValueChange={(values) => {
-                  const newSelectedSpeakers = values.map(v => parseInt(v, 10));
+                  const newSelectedSpeakers = values.map((v) =>
+                    parseInt(v, 10)
+                  );
                   setSelectedSpeakers(newSelectedSpeakers);
 
                   // Update URL params
                   const newParams = new URLSearchParams(searchParams);
                   newParams.delete("speakerIds");
 
-                  newSelectedSpeakers.forEach(id => {
+                  newSelectedSpeakers.forEach((id) => {
                     newParams.append("speakerIds", id.toString());
                   });
 
                   setSearchParams(newParams, { replace: true });
                 }}
-                disabled={loading}
-                className="mb-2"
+                disabled={loading || politicianItems.length <= 0}
               />
             )}
             {selectedSpeakers.length > 0 && (
               <div className="mt-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => {
                     setSelectedSpeakers([]);
                     const newParams = new URLSearchParams(searchParams);

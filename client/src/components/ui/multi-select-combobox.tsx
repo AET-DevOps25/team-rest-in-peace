@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { X, Check, ChevronsUpDown } from "lucide-react"
+import * as React from "react";
+import { X, Check, ChevronsUpDown } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -12,29 +12,29 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 
 export type ComboboxItem = {
-  value: string
-  label: string
-  color?: string
-}
+  value: string;
+  label: string;
+  color?: string;
+};
 
 interface MultiSelectComboboxProps {
-  items: ComboboxItem[]
-  placeholder: string
-  searchPlaceholder: string
-  emptyMessage: string
-  selectedValues: string[]
-  onValueChange: (values: string[]) => void
-  className?: string
-  disabled?: boolean
+  items: ComboboxItem[];
+  placeholder: string;
+  searchPlaceholder: string;
+  emptyMessage: string;
+  selectedValues: string[];
+  onValueChange: (values: string[]) => void;
+  className?: string;
+  disabled?: boolean;
 }
 
 export function MultiSelectCombobox({
@@ -47,11 +47,11 @@ export function MultiSelectCombobox({
   className,
   disabled = false,
 }: MultiSelectComboboxProps) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
 
-  const selectedItems = items.filter((item) => 
+  const selectedItems = items.filter((item) =>
     selectedValues.includes(item.value)
-  )
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -67,12 +67,14 @@ export function MultiSelectCombobox({
             {selectedItems.length > 0 ? (
               <div className="flex flex-nowrap gap-1 max-w-[90%]">
                 {selectedItems.map((item) => (
-                  <Badge 
-                    key={item.value} 
+                  <Badge
+                    key={item.value}
                     className={cn(item.color)}
                     onClick={(e) => {
-                      e.stopPropagation()
-                      onValueChange(selectedValues.filter((value) => value !== item.value))
+                      e.stopPropagation();
+                      onValueChange(
+                        selectedValues.filter((value) => value !== item.value)
+                      );
                     }}
                   >
                     {item.label}
@@ -87,7 +89,7 @@ export function MultiSelectCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+      <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)] min-w-0">
         <Command>
           <CommandInput placeholder={searchPlaceholder} className="h-9" />
           <CommandList>
@@ -98,17 +100,21 @@ export function MultiSelectCombobox({
                   key={item.value}
                   value={item.label}
                   onSelect={() => {
-                    const newSelectedValues = selectedValues.includes(item.value)
+                    const newSelectedValues = selectedValues.includes(
+                      item.value
+                    )
                       ? selectedValues.filter((value) => value !== item.value)
-                      : [...selectedValues, item.value]
-                    onValueChange(newSelectedValues)
+                      : [...selectedValues, item.value];
+                    onValueChange(newSelectedValues);
                   }}
                 >
                   <div className="flex items-center">
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        selectedValues.includes(item.value) ? "opacity-100" : "opacity-0"
+                        selectedValues.includes(item.value)
+                          ? "opacity-100"
+                          : "opacity-0"
                       )}
                     />
                     {item.label}
@@ -120,5 +126,5 @@ export function MultiSelectCombobox({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
