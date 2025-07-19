@@ -3,4 +3,4 @@ uvicorn==0.23.2
 langchain_google_genai
 pydantic
 asyncpg
-prometheus_client
+prometheus_fastapi_instrumentator
