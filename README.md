@@ -78,9 +78,7 @@ This document provides instructions for setting up and running the Policy Watch 
 
 4. **Create a new .env.aws file:**
    ```bash
-   # Read the new base URL from the 2nd line of inventory.ini
    NEW_URL=$(sed -n '2p' ansible/inventory.ini | sed 's/^/http:\/\//; s/$/\//')
-   # Copy everything from .env to .env.aws, replacing CLIENT_BASEURL
    sed "s|^CLIENT_BASE_URL=.*|CLIENT_BASE_URL=${NEW_URL}|" .env > .env.aws
    ```
 
