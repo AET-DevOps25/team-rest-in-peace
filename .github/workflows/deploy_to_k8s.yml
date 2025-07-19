@@ -22,6 +22,9 @@ jobs:
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG }}
+      - name: Set short commit hash
+        id: vars
+        run: echo "SHORT_SHA=sha-${GITHUB_SHA::7}" >> $GITHUB_ENV
       - name: Deploy the Helm chart
         run: |
           helm upgrade policy-watch helm/policy-watch \
@@ -41,4 +44,9 @@ jobs:
             --set-string browsingService.db.password="${{ secrets.BROWSING_DB_PASSWORD }}" \
             --set-string notificationService.mail.password="${{ secrets.NOTIFICATION_MAIL_PASSWORD }}" \
             --set-string notificationService.db.username="${{ secrets.NOTIFICATION_DB_USER }}" \
-            --set-string notificationService.db.password="${{ secrets.NOTIFICATION_DB_PASSWORD }}"
+            --set-string notificationService.db.password="${{ secrets.NOTIFICATION_DB_PASSWORD }}" \
+            --set-string genaiService.tag="$SHORT_SHA" \
+            --set-string dataFetchingService.tag="$SHORT_SHA" \
+            --set-string browsingService.tag="$SHORT_SHA" \
+            --set-string notificationService.tag="$SHORT_SHA" \
+            --set-string client.tag="$SHORT_SHA"
