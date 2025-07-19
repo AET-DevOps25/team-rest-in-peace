@@ -8,3 +8,5 @@ data:
   DB_PORT: {{ .Values.db.port | quote }}
   DB_NAME: {{ .Values.db.name | quote }}
   DF_DB_USERNAME: {{ .Values.dataFetchingService.db.username | quote }}
+  GS_BASEURL: {{ printf "https://%s/api/genai" .Values.url | quote }}
+  NS_BASEURL: {{ printf "https://%s/api/notify" .Values.url | quote }}

@@ -1,0 +1,42 @@
+name: Deploy to Kubernetes with helm
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+      - name: Configure Kubeconfig
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+      - name: Deploy the Helm chart
+        run: |
+          helm upgrade policy-watch helm/policy-watch \
+            --install \
+            --create-namespace \
+            --namespace team-rest-in-peace \
+            --set-string db.name="${{ secrets.DB_NAME }}" \
+            --set-string db.user="${{ secrets.DB_USER }}" \
+            --set-string db.password="${{ secrets.DB_PASSWORD }}" \
+            --set-string genaiService.apiKey="${{ secrets.GENAI_API_KEY }}" \
+            --set-string genaiService.db.username="${{ secrets.GENAI_DB_USER }}" \
+            --set-string genaiService.db.password="${{ secrets.GENAI_DB_PASSWORD }}" \
+            --set-string dataFetchingService.bundestagApiKey="${{ secrets.BUNDESTAG_API_KEY }}" \
+            --set-string dataFetchingService.db.username="${{ secrets.DATA_FETCHING_DB_USER }}" \
+            --set-string dataFetchingService.db.password="${{ secrets.DATA_FETCHING_DB_PASSWORD }}" \
+            --set-string browsingService.db.username="${{ secrets.BROWSING_DB_USER }}" \
+            --set-string browsingService.db.password="${{ secrets.BROWSING_DB_PASSWORD }}" \
+            --set-string notificationService.mail.password="${{ secrets.NOTIFICATION_MAIL_PASSWORD }}" \
+            --set-string notificationService.db.username="${{ secrets.NOTIFICATION_DB_USER }}" \
+            --set-string notificationService.db.password="${{ secrets.NOTIFICATION_DB_PASSWORD }}"

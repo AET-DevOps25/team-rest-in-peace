@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
         - name: browsing-service
-          image: {{ .Values.browsingService.image }}
+          image: {{ .Values.browsingService.image }}:{{ .Values.browsingService.tag }}
+          imagePullPolicy: {{ .Values.browsingService.imagePullPolicy | default "IfNotPresent" }}
           ports:
             - containerPort: {{ .Values.browsingService.port }}
           envFrom:

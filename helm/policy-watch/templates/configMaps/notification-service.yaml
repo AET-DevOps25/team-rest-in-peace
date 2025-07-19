@@ -8,3 +8,4 @@ data:
   DB_PORT: {{ .Values.db.port | quote }}
   DB_NAME: {{ .Values.db.name | quote }}
   NS_DB_USERNAME: {{ .Values.notificationService.db.username | quote }}
+  CLIENT_BASE_URL: {{ .Values.url | quote }}
