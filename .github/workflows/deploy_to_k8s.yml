@@ -31,20 +31,20 @@ jobs:
             --install \
             --create-namespace \
             --namespace team-rest-in-peace \
-            --set-string db.name="${{ secrets.DB_NAME }}" \
-            --set-string db.user="${{ secrets.DB_USER }}" \
-            --set-string db.password="${{ secrets.DB_PASSWORD }}" \
-            --set-string genaiService.apiKey="${{ secrets.GENAI_API_KEY }}" \
-            --set-string genaiService.db.username="${{ secrets.GENAI_DB_USER }}" \
-            --set-string genaiService.db.password="${{ secrets.GENAI_DB_PASSWORD }}" \
-            --set-string dataFetchingService.bundestagApiKey="${{ secrets.BUNDESTAG_API_KEY }}" \
-            --set-string dataFetchingService.db.username="${{ secrets.DATA_FETCHING_DB_USER }}" \
-            --set-string dataFetchingService.db.password="${{ secrets.DATA_FETCHING_DB_PASSWORD }}" \
-            --set-string browsingService.db.username="${{ secrets.BROWSING_DB_USER }}" \
-            --set-string browsingService.db.password="${{ secrets.BROWSING_DB_PASSWORD }}" \
-            --set-string notificationService.mail.password="${{ secrets.NOTIFICATION_MAIL_PASSWORD }}" \
-            --set-string notificationService.db.username="${{ secrets.NOTIFICATION_DB_USER }}" \
-            --set-string notificationService.db.password="${{ secrets.NOTIFICATION_DB_PASSWORD }}" \
+            --set-string db.name="${{ vars.POSTGRES_DB }}" \
+            --set-string db.user="${{ vars.POSTGRES_USER }}" \
+            --set-string db.password="${{ secrets.POSTGRES_PASSWORD }}" \
+            --set-string genaiService.apiKey="${{ secrets.NLP_GENAI_API_KEY }}" \
+            --set-string genaiService.db.username="${{ vars.NLP_DB_USERNAME }}" \
+            --set-string genaiService.db.password="${{ secrets.NLP_DB_PASSWORD }}" \
+            --set-string dataFetchingService.bundestagApiKey="${{ secrets.DF_BUNDESTAG_API_KEY }}" \
+            --set-string dataFetchingService.db.username="${{ vars.DF_DB_USERNAME }}" \
+            --set-string dataFetchingService.db.password="${{ vars.DF_DB_PASSWORD }}" \
+            --set-string browsingService.db.username="${{ vars.BS_DB_USERNAME }}" \
+            --set-string browsingService.db.password="${{ secrets.BS_DB_PASSWORD }}" \
+            --set-string notificationService.mail.password="${{ secrets.NS_MAIL_PASSWORD }}" \
+            --set-string notificationService.db.username="${{ vars.NS_DB_USERNAME }}" \
+            --set-string notificationService.db.password="${{ secrets.NS_DB_PASSWORD }}" \
             --set-string genaiService.tag="$SHORT_SHA" \
             --set-string dataFetchingService.tag="$SHORT_SHA" \
             --set-string browsingService.tag="$SHORT_SHA" \
