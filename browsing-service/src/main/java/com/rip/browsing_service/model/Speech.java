@@ -23,8 +23,7 @@ public class Speech {
     private String textPlain;
 
 
-    @Transient // Hibernate will ignore this field for database operations
-    @Column(name = "text_embedding")
+    @Column(name = "text_embedding", columnDefinition = "vector")
     private float[] textEmbedding;
 
     @OneToMany(mappedBy = "speech", cascade = CascadeType.ALL)

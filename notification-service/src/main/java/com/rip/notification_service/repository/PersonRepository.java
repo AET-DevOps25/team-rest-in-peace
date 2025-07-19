@@ -17,18 +17,13 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
     @Override
     Optional<Person> findById(Integer integer);
 
-    @Query(
-            value = """
-                    SELECT DISTINCT p.*
-                    FROM speech s
-                      JOIN agenda_item ai  ON s.agenda_item_id     = ai.id
-                      JOIN plenary_protocol pp ON ai.plenary_protocol_id = pp.id
-                      JOIN person p        ON s.person_id           = p.id
-                    WHERE pp.id IN (:plenaryProtocolIds)
-                      AND p.party IS NOT NULL
-                    """,
-            nativeQuery = true
-    )
+    @Query("""
+                SELECT DISTINCT s.person
+                FROM Speech s
+                JOIN s.agendaItem ai
+                JOIN ai.plenaryProtocol pp
+                WHERE pp.id IN :plenaryProtocolIds
+                  AND s.person.party IS NOT NULL
+            """)
     List<Person> findDistinctPersonsByPlenaryProtocolIds(@Param("plenaryProtocolIds") List<Integer> plenaryProtocolIds);
-
 }

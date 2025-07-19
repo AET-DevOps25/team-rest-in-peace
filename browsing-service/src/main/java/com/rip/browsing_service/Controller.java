@@ -1,9 +1,6 @@
 package com.rip.browsing_service;
 
-import com.rip.browsing_service.dto.PlenaryProtocolDto;
-import com.rip.browsing_service.dto.SpeakerStatisticDto;
-import com.rip.browsing_service.dto.SpeechDto;
-import com.rip.browsing_service.dto.StatisticsDto;
+import com.rip.browsing_service.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,9 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.sql.Array;
+import java.util.*;
 
 @RestController
 public class Controller {
@@ -65,16 +61,24 @@ public class Controller {
         return ResponseEntity.ok(stats);
     }
 
+    @GetMapping("/parties")
+    public ResponseEntity<List<PartyStatisticsDto>> getAllPartyStatistics() {
+        List<PartyStatisticsDto> stats = browsingService.getAllPartyStatistics();
+        return ResponseEntity.ok(stats);
+    }
+
     @GetMapping("/speeches")
     public Page<SpeechDto> getAllSpeeches(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String party,
-            @RequestParam(required = false) Integer speakerId,
-            @RequestParam(required = false) Integer plenaryProtocolId
+            @RequestParam(required = false) Optional<List<String>> parties,
+            @RequestParam(required = false) Optional<List<Integer>> speakerIds,
+            @RequestParam(required = false) Integer plenaryProtocolId,
+            @RequestParam(required = false) String searchText,
+            @RequestParam(defaultValue = "0.5") Float searchSimilarityThreshold
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return browsingService.getAllSpeechDetails(pageable, party, speakerId, plenaryProtocolId);
+        return browsingService.getAllSpeechDetails(pageable, parties.orElse(new ArrayList<>()), speakerIds.orElse(new ArrayList<>()), plenaryProtocolId, searchText, searchSimilarityThreshold);
     }
 
     @GetMapping("plenary-protocols/{id}/name")

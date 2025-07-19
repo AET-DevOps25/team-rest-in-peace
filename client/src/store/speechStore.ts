@@ -7,9 +7,11 @@ const api = {
     page = 0,
     size = 10,
     filters?: {
-      party?: string;
-      speakerId?: number;
+      parties?: string[];
+      speakerIds?: number[];
       plenaryProtocolId?: number;
+      searchText?: string;
+      searchSimilarityThreshold?: number;
     }
   ): Promise<{
     content: SpeechDto[];
@@ -21,14 +23,26 @@ const api = {
       size: size.toString(),
     });
 
-    if (filters?.party) {
-      params.append("party", filters.party);
+    if (filters?.parties) {
+      params.set("parties", filters.parties ? filters.parties.join(",") : "");
     }
-    if (filters?.speakerId !== undefined) {
-      params.append("speakerId", filters.speakerId.toString());
+
+    if (filters?.speakerIds && filters.speakerIds.length > 0) {
+      params.set(
+        "speakerIds",
+        filters.speakerIds ? filters.speakerIds.join(",") : ""
+      );
     }
-    if (filters?.plenaryProtocolId !== undefined) {
-      params.append("plenaryProtocolId", filters.plenaryProtocolId.toString());
+
+    if (filters?.searchText) {
+      params.append("searchText", filters.searchText);
+    }
+
+    if (filters?.searchSimilarityThreshold) {
+      params.append(
+        "searchSimilarityThreshold",
+        filters.searchSimilarityThreshold.toString()
+      );
     }
 
     const res = await fetch(
@@ -81,9 +95,11 @@ interface SpeechStoreState {
     size?: number,
     append?: boolean,
     filters?: {
-      party?: string;
-      speakerId?: number;
+      parties?: string[];
+      speakerIds?: number[];
       plenaryProtocolId?: number;
+      searchText?: string;
+      searchSimilarityThreshold?: number;
     }
   ) => Promise<void>;
   getPlenaryProtocolName: (id: number) => Promise<string>;
