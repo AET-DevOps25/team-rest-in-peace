@@ -142,6 +142,8 @@ public class BrowsingService {
 
     public Page<SpeechDto> getAllSpeechDetails(Pageable pageable, List<String> parties, List<Integer> speakerIds, Integer plenaryProtocolId, String searchText, float searchSimilarityThreshold) {
         logger.info("Fetching speech details... {}", speakerIds);
+        logger.info("Parties: {}", parties);
+
         if (searchText != null && !searchText.isBlank()) {
             try {
                 URI genaiEmbeddingUrlPath = UriComponentsBuilder.fromUriString(genaiBaseUrl).path("embedding").queryParam("text", searchText).build().toUri();

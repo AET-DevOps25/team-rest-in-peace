@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import SpeechCard from "../SpeechListPage/components/SpeechCard";
 import SearchSection from "./SearchSection";
 import { useSearchParams } from "react-router";
-import { use } from "chai";
 
 const SpeechSearchPage = () => {
   const { speeches, loading, error, fetchSpeeches, page, totalPages } =
@@ -12,7 +11,7 @@ const SpeechSearchPage = () => {
 
   const [searchParams] = useSearchParams();
   const [parties, setParties] = useState<string[]>(
-    searchParams.getAll("parties")
+    searchParams.getAll("party")
   );
   const [speakerIds, setSpeakerIds] = useState<number[]>(
     searchParams.getAll("speakerIds").map((id) => parseInt(id, 10))
@@ -54,7 +53,7 @@ const SpeechSearchPage = () => {
       searchText: searchText || "",
       speakerIds: speakerIds.length > 0 ? speakerIds : [],
     });
-  }, [parties, speakerIds, searchText]);
+  }, [parties, speakerIds, searchText, fetchSpeeches]);
 
   if (error) return <div>Error: {error}</div>;
 
