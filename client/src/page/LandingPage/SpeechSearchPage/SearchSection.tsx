@@ -14,24 +14,32 @@ import {
   type ComboboxItem,
 } from "@/components/ui/multi-select-combobox";
 
-const SearchSection = () => {
+interface SearchSectionProps {
+  selectedParties: string[];
+  setSelectedParties: (parties: string[]) => void;
+  selectedSpeakers: number[];
+  setSelectedSpeakers: (speakers: number[]) => void;
+  searchText: string;
+  setSearchText: (text: string) => void;
+}
+
+const SearchSection = ({
+  selectedParties,
+  setSelectedParties,
+  selectedSpeakers,
+  setSelectedSpeakers,
+  searchText,
+  setSearchText,
+}: SearchSectionProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchText, setSearchText] = useState(
-    searchParams.get("searchText") || ""
-  );
-
-  const partyParams = searchParams.getAll("party");
-  const [selectedParties, setSelectedParties] = useState<string[]>(partyParams);
-
-  // Parse speakerIds from URL params
-  const speakerIdsParam = searchParams.getAll("speakerIds");
-  const [selectedSpeakers, setSelectedSpeakers] = useState<number[]>(
-    speakerIdsParam.map((id) => parseInt(id, 10))
-  );
-
   // State for politicians list
   const [politicians, setPoliticians] = useState<SpeakerStatisticDto[]>([]);
   const [politicianItems, setPoliticianItems] = useState<ComboboxItem[]>([]);
+
+  // State local search text
+  const [searchTextLocal, setSearchTextLocal] = useState<string>(
+    searchText || ""
+  );
 
   const loading = useSpeechStore((state) => state.loading);
   const {
@@ -41,7 +49,7 @@ const SearchSection = () => {
   } = useSpeakerStatisticsStore();
 
   useEffect(() => {
-    fetchSpeakers(0, 20);
+    fetchSpeakers(0, 100);
   }, [fetchSpeakers]);
 
   // Update politicians list when speakers are loaded
@@ -90,8 +98,8 @@ const SearchSection = () => {
 
     const newParams = new URLSearchParams(searchParams);
 
-    if (searchText) {
-      newParams.set("searchText", searchText);
+    if (searchTextLocal) {
+      newParams.set("searchText", searchTextLocal);
     } else {
       newParams.delete("searchText");
     }
@@ -105,6 +113,7 @@ const SearchSection = () => {
     });
 
     setSearchParams(newParams, { replace: true });
+    setSearchText(searchTextLocal);
   };
 
   const toggleParty = (party: string) => {
@@ -159,8 +168,8 @@ const SearchSection = () => {
           <div className="flex gap-2">
             <Input
               placeholder="Natürliche Sprache Suche..."
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              value={searchTextLocal}
+              onChange={(e) => setSearchTextLocal(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleSearch();

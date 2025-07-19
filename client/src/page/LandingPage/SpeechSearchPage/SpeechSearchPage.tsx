@@ -4,17 +4,22 @@ import { useEffect, useState } from "react";
 import SpeechCard from "../SpeechListPage/components/SpeechCard";
 import SearchSection from "./SearchSection";
 import { useSearchParams } from "react-router";
+import { use } from "chai";
 
 const SpeechSearchPage = () => {
   const { speeches, loading, error, fetchSpeeches, page, totalPages } =
     useSpeechStore();
 
   const [searchParams] = useSearchParams();
-  const parties = searchParams.getAll("parties");
-  const searchText = searchParams.get("searchText");
-  const speakerIds = searchParams
-    .getAll("speakerIds")
-    .map((id) => parseInt(id, 10));
+  const [parties, setParties] = useState<string[]>(
+    searchParams.getAll("parties")
+  );
+  const [speakerIds, setSpeakerIds] = useState<number[]>(
+    searchParams.getAll("speakerIds").map((id) => parseInt(id, 10))
+  );
+  const [searchText, setSearchText] = useState<string>(
+    searchParams.get("searchText") || ""
+  );
 
   const [title, setTitle] = useState("Erweiterte Suche");
 
@@ -32,17 +37,37 @@ const SpeechSearchPage = () => {
     hasMore: page + 1 < totalPages,
     onLoadMore: () =>
       fetchSpeeches(page + 1, 10, true, {
-        parties: parties || undefined,
-        searchText: searchText || undefined,
-        speakerIds: speakerIds.length > 0 ? speakerIds : undefined,
+        parties: parties || [],
+        searchText: searchText || "",
+        speakerIds: speakerIds.length > 0 ? speakerIds : [],
       }),
   });
+
+  useEffect(() => {
+    console.log("Search parameters changed:", {
+      parties,
+      speakerIds,
+      searchText,
+    });
+    fetchSpeeches(0, 1000, false, {
+      parties: parties || [],
+      searchText: searchText || "",
+      speakerIds: speakerIds.length > 0 ? speakerIds : [],
+    });
+  }, [parties, speakerIds, searchText]);
 
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="flex flex-col gap-6 w-full">
-      <SearchSection />
+      <SearchSection
+        selectedParties={parties}
+        setSelectedParties={setParties}
+        selectedSpeakers={speakerIds}
+        setSelectedSpeakers={setSpeakerIds}
+        searchText={searchText}
+        setSearchText={setSearchText}
+      />
       {speeches.length > 0 ? (
         <>
           {searchText && <h2 className="text-xl font-semibold">{title}</h2>}
