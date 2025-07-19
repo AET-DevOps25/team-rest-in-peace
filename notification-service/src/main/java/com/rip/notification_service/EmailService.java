@@ -7,6 +7,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Set;
@@ -79,8 +80,7 @@ public class EmailService {
                 .map(party -> {
                     String partyUrl = UriComponentsBuilder
                             .fromUriString(clientBaseUrl)
-                            .path("/partei")
-                            .path(party)
+                            .pathSegment("partei", party)
                             .build()
                             .encode()
                             .toUriString();
@@ -95,7 +95,7 @@ public class EmailService {
         sendNotification(to, subject, html);
     }
 
-
+    @Transactional
     public void sendPersonNotification(String to, Set<Person> speakers) throws Exception {
         String subject = "New Speeches for Subscribed Speakers Available";
         String speakersString = speakers.stream()

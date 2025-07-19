@@ -23,7 +23,7 @@ public class Controller {
         ApiService.Result result = apiService.fetchAndStoreData(aktualisiertStart, aktualisiertEnd, datumStart, datumEnd, dokumentnummer, id, vorgangstyp, vorgangstypNotation, wahlperiode, cursor, format);
 
         List<Integer> ids = result.successfulPlenaryProtocolIds();
-        if (notifySubscribers) {
+        if (notifySubscribers && !ids.isEmpty()) {
             apiService.callNotificationService(ids);
         }
 

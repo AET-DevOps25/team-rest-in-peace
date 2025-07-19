@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ApiService {
@@ -80,6 +81,7 @@ public class ApiService {
         return new Result(true, null);
     }
 
+    @Transactional
     @Async
     public void notifyAllAsync(List<Integer> plenaryProtocolIds) {
         buildAndSendNotificationPlenaryProtocol(plenaryProtocolIds);
@@ -89,7 +91,6 @@ public class ApiService {
         buildAndSendNotificationParty(distinctSpeakers.stream().map(Person::getParty).distinct().collect(Collectors.toList()));
 
         buildAndSendNotificationPerson(distinctSpeakers);
-
     }
 
     public void buildAndSendNotificationPlenaryProtocol(List<Integer> plenaryProtocolIds) {
@@ -123,6 +124,7 @@ public class ApiService {
                 );
     }
 
+    @Transactional
     public void buildAndSendNotificationPerson(List<Person> speakers) {
         List<NotificationSetting> notificationSettings = notificationSettingRepository.findAllByType("PERSON");
         Map<String, Set<Person>> byEmail = notificationSettings.stream()

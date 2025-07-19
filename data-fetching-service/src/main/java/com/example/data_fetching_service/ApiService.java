@@ -325,11 +325,13 @@ public class ApiService {
     }
 
     public void callNotificationService(List<Integer> plenaryProtocolIds) {
+        logger.info("Calling Notification service to process {} plenary protocols: {}", plenaryProtocolIds.size(), plenaryProtocolIds);
         URI uri = UriComponentsBuilder
                 .fromUriString(notificationServiceBaseUrl)
                 .path("/notify")
                 .build()
                 .toUri();
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
