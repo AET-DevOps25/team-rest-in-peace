@@ -1,0 +1,111 @@
+classDiagram
+    class PlenaryProtocol {
+        +Integer id
+        +Integer electionPeriod
+        +Date date
+        +String title
+        +String summary
+        +String xmlText
+        +generateSummary()
+        +getSpeeches()
+    }
+
+    class Speech {
+        +Integer id
+        +String textPlain
+        +String summary
+        +SpeechType type
+        +generateSummary()
+        +getChunks()
+    }
+
+    class SpeechChunk {
+        +Integer id
+        +String text
+        +Vector textEmbedding
+    }
+
+    class Politician {
+        +Integer id
+        +String firstName
+        +String lastName
+        +String function
+        +String ressort
+        +getSpeeches()
+    }
+
+    class Party {
+        +Integer id
+        +String name
+        +String abbreviation
+        +getPoliticians()
+        +getSpeeches()
+    }
+
+    class User {
+        +Integer id
+        +String email
+        +getSubscriptions()
+        +getNotifications()
+    }
+
+    class NotificationManager {
+        +addPlenaryProtocol()
+    }
+
+    class Subscription {
+        +Integer id
+        +SubscriptionType type
+        +String keyword
+        +checkForMatch(Speech speech)
+    }
+
+    class Notification {
+        +Integer id
+        +Date timestamp
+        +String content
+    }
+
+    class SpeechSearchService {
+        +searchByKeyword(String keyword) : List<Speech>
+        +searchByPolitician(Politician politician) : List<Speech>
+        +searchByParty(Party party) : List<Speech>
+    }
+
+    class SpeechStatisticsService {
+        +getStatsByPolitician(Politician p) : SpeechStats
+        +getStatsByParty(Party party) : SpeechStats
+    }
+
+    class SpeechStats {
+        +Integer totalSpeeches
+        +Integer totalWords
+        +Double avgSpeechLength
+    }
+
+    PlenaryProtocol "1" --> "n" Speech : contains
+    Speech "1" --> "n" SpeechChunk : is divided into
+    Politician "1" --> "n" Speech : delivers
+    Politician "n" --> "1" Party : belongs to
+    User "1" --> "n" Subscription : manages
+    User "1" --> "n" PlenaryProtocol : views
+    NotificationManager "1" --> "n" PlenaryProtocol : watches
+    NotificationManager "1" --> "n" Subscription : overviews
+    NotificationManager "1" --> "n" Notification : sends
+    Notification "1" --> "1" User : is sent to
+
+    User --> SpeechSearchService : uses for searching speeches
+    User --> SpeechStatisticsService : uses for viewing statistics
+
+    SpeechSearchService --> Speech : searches
+    SpeechSearchService --> Politician : filters by
+    SpeechSearchService --> Party : filters by
+
+    SpeechStatisticsService --> Speech : aggregates
+    SpeechStatisticsService --> Politician : summarizes for
+    SpeechStatisticsService --> Party : summarizes for
+
+    SpeechStatisticsService --> SpeechStats : returns
+
+
+
