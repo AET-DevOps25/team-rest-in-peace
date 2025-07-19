@@ -1,31 +1,16 @@
 import asyncio
 import logging
 import os
-import time
 from typing import List
 
 import asyncpg
-from fastapi import FastAPI, HTTPException, Query
-from fastapi import Request
-from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi import FastAPI, HTTPException
-from prometheus_fastapi_instrumentator import Instrumentator
-from pydantic import BaseModel
+from fastapi import Query
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from typing import List
-from app.config import MODEL_CONFIG, PROMPTS
-import asyncpg
-import asyncio
-import logging
-from prometheus_client import (
-    Summary,
-    Counter,
-    generate_latest,
-    CONTENT_TYPE_LATEST,
-)
+from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel
-from starlette.responses import Response as StarletteResponse
 
 from app.config import MODEL_CONFIG, PROMPTS
 
