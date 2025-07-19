@@ -1,6 +1,5 @@
 package com.rip.notification_service.repository;
 
-import com.rip.notification_service.dto.PersonDto;
 import com.rip.notification_service.model.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
