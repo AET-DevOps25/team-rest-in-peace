@@ -12,7 +12,7 @@ part of a DevOps deployment pipeline.
     - Fetches data daily from the official **Bundestag API**.
     - Stores structured plenary speech data in a **PostgreSQL** database.
 
-### Frontend API Gateway
+### Browsing Service
 
 - **Tech Stack:** Spring Boot
 - **Responsibilities:**
@@ -26,7 +26,7 @@ part of a DevOps deployment pipeline.
     - Sends **email notifications** to users who follow specific **politicians** or **topics**.
     - Monitors new speech data and triggers alerts based on user preferences.
 
-### NLP & Recommendation Service
+### GenAI Service
 
 - **Tech Stack:** Python, FastAPI, Langchain
 - **Responsibilities:**
