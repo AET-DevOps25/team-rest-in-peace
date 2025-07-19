@@ -10,6 +10,8 @@ import SpeechListPage from "./page/LandingPage/SpeechListPage/SpeechListPage.tsx
 import GenerallLayout from "./components/layouts/GenerallLayout.tsx";
 import UnsubscribePage from "./page/UnsubscribePage/UnsubscribePage.tsx";
 import SpeechSearchPage from "@/page/LandingPage/SpeechSearchPage/SpeechSearchPage";
+import SwaggerDocs from "../public/Docu-Monitoring/SwaggerDocs.tsx";
+import Health from "../public/Docu-Monitoring/Health.tsx";
 
 const router = createBrowserRouter([
   {
@@ -89,6 +91,14 @@ const router = createBrowserRouter([
   {
     path: "unsubscribe",
     element: <UnsubscribePage />,
+  },
+  {
+    path: "docs",
+    element: <SwaggerDocs />,
+  },
+  {
+    path: "health",
+    element: <Health />,
   },
 ]);
 
