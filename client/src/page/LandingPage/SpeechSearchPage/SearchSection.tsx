@@ -14,19 +14,12 @@ import {
   type ComboboxItem,
 } from "@/components/ui/multi-select-combobox";
 
-interface SearchSectionProps {
-  onSearch?: (
-    searchText: string,
-    parties?: string[],
-    speakerIds?: number[]
-  ) => void;
-}
-
-const SearchSection = ({ onSearch }: SearchSectionProps) => {
+const SearchSection = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchText, setSearchText] = useState(
     searchParams.get("searchText") || ""
   );
+
   const partyParams = searchParams.getAll("party");
   const [selectedParties, setSelectedParties] = useState<string[]>(partyParams);
 
@@ -47,9 +40,8 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
     fetchSpeakers,
   } = useSpeakerStatisticsStore();
 
-  // Fetch politicians on component mount
   useEffect(() => {
-    fetchSpeakers(0, 100); // Fetch first 100 politicians
+    fetchSpeakers(0, 20);
   }, [fetchSpeakers]);
 
   // Update politicians list when speakers are loaded
@@ -113,22 +105,13 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
     });
 
     setSearchParams(newParams, { replace: true });
-
-    // Only call onSearch if there's text in the search field
-    if (onSearch) {
-      onSearch(
-        searchText,
-        selectedParties.length > 0 ? selectedParties : undefined,
-        selectedSpeakers.length > 0 ? selectedSpeakers : undefined
-      );
-    }
   };
 
   const toggleParty = (party: string) => {
     if (loading) return;
 
     const newParams = new URLSearchParams(searchParams);
-    newParams.delete("party"); // Remove all existing party params
+    newParams.delete("party");
 
     let newSelectedParties: string[];
 
@@ -145,7 +128,24 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
       newParams.append("party", p);
     });
 
+    // Adapt selected speakers: only keep those in selected parties
+    let newSelectedSpeakers = selectedSpeakers;
+    if (newSelectedParties.length > 0) {
+      const allowedIds = politicians
+        .filter((p) => newSelectedParties.includes(p.party))
+        .map((p) => p.personId);
+      newSelectedSpeakers = selectedSpeakers.filter((id) =>
+        allowedIds.includes(id)
+      );
+      // Update speakerIds in URL params
+      newParams.delete("speakerIds");
+      newSelectedSpeakers.forEach((id) => {
+        newParams.append("speakerIds", id.toString());
+      });
+    }
+
     setSelectedParties(newSelectedParties);
+    setSelectedSpeakers(newSelectedSpeakers);
     setSearchParams(newParams, { replace: true });
   };
 
@@ -253,24 +253,13 @@ const SearchSection = ({ onSearch }: SearchSectionProps) => {
                   setSearchParams(newParams, { replace: true });
                 }}
                 disabled={loading || politicianItems.length <= 0}
+                deleteAll={() => {
+                  setSelectedSpeakers([]);
+                  const newParams = new URLSearchParams(searchParams);
+                  newParams.delete("speakerIds");
+                  setSearchParams(newParams, { replace: true });
+                }}
               />
-            )}
-            {selectedSpeakers.length > 0 && (
-              <div className="mt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedSpeakers([]);
-                    const newParams = new URLSearchParams(searchParams);
-                    newParams.delete("speakerIds");
-                    setSearchParams(newParams, { replace: true });
-                  }}
-                  disabled={loading}
-                >
-                  Alle Politiker zurücksetzen
-                </Button>
-              </div>
             )}
           </div>
         </div>

@@ -6,31 +6,17 @@ import SearchSection from "./SearchSection";
 import { useSearchParams } from "react-router";
 
 const SpeechSearchPage = () => {
-  const {
-    speeches,
-    loading,
-    error,
-    fetchSpeeches,
-    page,
-    totalPages,
-  } = useSpeechStore();
+  const { speeches, loading, error, fetchSpeeches, page, totalPages } =
+    useSpeechStore();
 
   const [searchParams] = useSearchParams();
   const parties = searchParams.getAll("parties");
   const searchText = searchParams.get("searchText");
-  const speakerIdsParam = searchParams.getAll("speakerIds");
-  const speakerIds = speakerIdsParam.map(id => parseInt(id, 10));
+  const speakerIds = searchParams
+    .getAll("speakerIds")
+    .map((id) => parseInt(id, 10));
 
   const [title, setTitle] = useState("Erweiterte Suche");
-
-  // Function to handle search from SearchSection
-  const handleSearch = (searchText: string, parties?: string[], speakerIds?: number[]) => {
-    fetchSpeeches(0, 10, false, {
-      parties: parties,
-      searchText: searchText,
-      speakerIds: speakerIds,
-    });
-  };
 
   // Update title when searchText changes, but don't fetch speeches automatically
   useEffect(() => {
@@ -40,20 +26,6 @@ const SpeechSearchPage = () => {
       setTitle("Erweiterte Suche");
     }
   }, [searchText]);
-
-  // Handle direct URL navigation with search params
-  useEffect(() => {
-    // Only run this effect once when the component mounts
-    if (searchText && speeches.length === 0) {
-      // This is likely a direct URL navigation with search params, not a tab change
-      handleSearch(
-        searchText, 
-        parties || undefined,
-        speakerIds.length > 0 ? speakerIds : undefined
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this runs once on mount
 
   const observerRef = useInfiniteScroll({
     loading,
@@ -70,12 +42,10 @@ const SpeechSearchPage = () => {
 
   return (
     <div className="flex flex-col gap-6 w-full">
-      <SearchSection onSearch={handleSearch} />
+      <SearchSection />
       {speeches.length > 0 ? (
         <>
-          {searchText && (
-            <h2 className="text-xl font-semibold">{title}</h2>
-          )}
+          {searchText && <h2 className="text-xl font-semibold">{title}</h2>}
           {speeches.map((s, i) => (
             <SpeechCard key={`${s.firstName}-${s.lastName}-${i}`} speech={s} />
           ))}
@@ -83,7 +53,9 @@ const SpeechSearchPage = () => {
       ) : (
         <div className="text-center py-8">
           {searchText ? (
-            <p>Keine Ergebnisse gefunden. Versuchen Sie eine andere Suchanfrage.</p>
+            <p>
+              Keine Ergebnisse gefunden. Versuchen Sie eine andere Suchanfrage.
+            </p>
           ) : (
             <p>Geben Sie einen Suchbegriff ein, um Reden zu finden.</p>
           )}

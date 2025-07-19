@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { X, Check, ChevronsUpDown } from "lucide-react";
+import { X, Check, ChevronsUpDown, Delete } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ interface MultiSelectComboboxProps {
   onValueChange: (values: string[]) => void;
   className?: string;
   disabled?: boolean;
+  deleteAll?: () => void;
 }
 
 export function MultiSelectCombobox({
@@ -46,6 +47,7 @@ export function MultiSelectCombobox({
   onValueChange,
   className,
   disabled = false,
+  deleteAll,
 }: MultiSelectComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -60,27 +62,42 @@ export function MultiSelectCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between", className)}
+          className={cn("w-full justify-between h-fit", className)}
           disabled={disabled}
         >
-          <div className="flex gap-1 items-center">
+          <div className="flex gap-1 items-center w-full">
             {selectedItems.length > 0 ? (
-              <div className="flex flex-nowrap gap-1 max-w-[90%]">
-                {selectedItems.map((item) => (
-                  <Badge
-                    key={item.value}
-                    className={cn(item.color)}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onValueChange(
-                        selectedValues.filter((value) => value !== item.value)
-                      );
-                    }}
-                  >
-                    {item.label}
-                    <X className="ml-1 h-3 w-3" />
-                  </Badge>
-                ))}
+              <div className="flex justify-between items-center gap-1 w-full">
+                <div className="flex flex-wrap gap-1 max-w-[90%]">
+                  {selectedItems.map((item) => (
+                    <Badge
+                      key={item.value}
+                      className={cn(item.color)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onValueChange(
+                          selectedValues.filter((value) => value !== item.value)
+                        );
+                      }}
+                    >
+                      {item.label}
+                      <X className="ml-1 h-3 w-3" />
+                    </Badge>
+                  ))}
+                </div>
+                <Badge
+                  variant={"outline"}
+                  className={`cursor-pointer bg-gray-50 ${
+                    disabled ? "opacity-50 pointer-events-none" : ""
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteAll?.();
+                  }}
+                >
+                  <X />
+                  <div className="text-xs">Alle Zurücksetzen</div>
+                </Badge>
               </div>
             ) : (
               <span className="text-muted-foreground">{placeholder}</span>
