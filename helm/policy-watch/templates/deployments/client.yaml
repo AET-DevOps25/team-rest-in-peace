@@ -17,7 +17,10 @@ spec:
     spec:
       containers:
         - name: client
-          image: client-image:local #{{ .Values.client.image }}
-          imagePullPolicy: Never
+          image: {{ .Values.client.image }}:{{ .Values.client.tag }}
+          imagePullPolicy: {{ .Values.client.imagePullPolicy | default "IfNotPresent" }}
           ports:
             - containerPort: {{ .Values.client.port }}
+          envFrom:
+            - configMapRef:
+                name: client-config

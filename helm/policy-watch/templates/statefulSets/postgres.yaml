@@ -18,17 +18,15 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: {{ .Values.db.image }}
+          image: {{ .Values.db.image }}:{{ .Values.db.tag }}
           ports:
             - containerPort: {{ .Values.db.port }}
               name: postgres-port
-          env:
-            - name: POSTGRES_DB
-              value: {{ .Values.db.name | quote }}
-            - name: POSTGRES_USER
-              value: {{ .Values.db.user | quote }}
-            - name: POSTGRES_PASSWORD
-              value: {{ .Values.db.password | quote }}
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+            - secretRef:
+                name: postgres-secret
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data

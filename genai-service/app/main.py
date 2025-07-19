@@ -7,8 +7,17 @@ from typing import List
 import asyncpg
 from fastapi import FastAPI, HTTPException, Query
 from fastapi import Request
+from prometheus_fastapi_instrumentator import Instrumentator
+from fastapi import FastAPI, HTTPException
+from prometheus_fastapi_instrumentator import Instrumentator
+from pydantic import BaseModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from typing import List
+from app.config import MODEL_CONFIG, PROMPTS
+import asyncpg
+import asyncio
+import logging
 from prometheus_client import (
     Summary,
     Counter,
@@ -40,19 +49,12 @@ Mainly called by data-fetching service to enrich the Protocols.
 """,
 )
 
-
 NLP_API_KEY = os.getenv("NLP_GENAI_API_KEY")
 NLP_DB_USERNAME = os.getenv("NLP_DB_USERNAME", "nlp-service")
 NLP_DB_PASSWORD = os.getenv("NLP_DB_PASSWORD")
 NLP_DB_HOST = os.getenv("DB_HOST", "localhost")
 NLP_DB_PORT = os.getenv("DB_PORT", "5432")
 NLP_DB_NAME = os.getenv("DB_NAME", "postgres")
-
-# Basic metrics
-REQUEST_COUNT = Counter("http_requests_total", "Total HTTP requests")
-REQUEST_LATENCY = Summary(
-    "http_request_latency_seconds", "HTTP request latency in seconds"
-)
 
 if not NLP_API_KEY:
     raise ValueError("Please set the NLP_GENAI_API_KEY in your environment variables.")
@@ -89,16 +91,6 @@ async def get_db_connection():
     )
 
 
-@app.middleware("http")
-async def prometheus_middleware(request: Request, call_next):
-    REQUEST_COUNT.inc()
-    start_time = time.time()
-    response = await call_next(request)
-    latency = time.time() - start_time
-    REQUEST_LATENCY.observe(latency)
-    return response
-
-
 class SummaryRequest(BaseModel):
     text: str = (
         "Dies ist eine Rede aus dem Deutschen Bundestag über die Energiepolitik."
@@ -133,26 +125,6 @@ class CombinedResponse(BaseModel):
 class ProcessSpeechesRequest(BaseModel):
     speech_ids: List[int] = [101, 102, 103]
     plenary_id: int = 17
-
-
-class SearchSpeechesRequest(BaseModel):
-    text: str
-    similarity_threshold: float = 0.5
-
-
-@app.get("/metrics", summary="Prometheus Metrics Endpoint")
-def metrics():
-    """
-    Exposes Prometheus-compatible metrics for monitoring.
-
-    Includes:
-    - Request count
-    - Latency histogram
-
-    **Returns**: Prometheus metrics in plaintext format.
-    """
-    data = generate_latest()
-    return StarletteResponse(content=data, media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/health", summary="Health Check", description="Check if the API is running.")
@@ -376,6 +348,10 @@ async def generate_plenary_summary(plenary_id: int):
         if conn:
             await conn.close()
 
+
+instrumentator = Instrumentator()
+instrumentator.instrument(app)
+instrumentator.expose(app, endpoint="/metrics")
 
 if __name__ == "__main__":
     import uvicorn
