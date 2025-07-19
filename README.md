@@ -161,7 +161,7 @@ Due to time constraints, we created two separate dashboards instead of consolida
 
 **Deploy to K8s** - Deploys the application to Kubernetes using Helm charts after successful Docker image builds, managing configuration and secrets injection.
 
-## Diagram
+## Diagrams
 
 <figure>
   <img src="documentation/component-diagram.png" alt="Component Diagram" style="height: 450px;">
