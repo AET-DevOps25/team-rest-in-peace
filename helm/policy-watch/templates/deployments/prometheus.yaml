@@ -16,6 +16,7 @@ spec:
       containers:
         - name: prometheus
           image: "{{ .Values.prometheus.image }}"
+          imagePullPolicy: Always
           args:
             - "--web.external-url=/prometheus/"
             - "--config.file=/etc/prometheus/prometheus.yml"
