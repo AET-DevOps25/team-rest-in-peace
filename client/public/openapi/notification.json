@@ -1,1 +1,268 @@
-{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8082","description":"Generated server url"}],"tags":[{"name":"Notification Service","description":"INTERNAL API - for managing user subscriptions and sending notifications about new parliamentary protocols"}],"paths":{"/subscribe":{"post":{"tags":["Notification Service"],"summary":"Subscribe to notifications","description":"Creates a new subscription for a user to receive notifications about new parliamentary protocols. Users can subscribe with their email and specify notification preferences.","operationId":"subscribe","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SubscriptionRequest"}}},"required":true},"responses":{"400":{"description":"Invalid subscription request or email already subscribed","content":{"application/json":{"schema":{"type":"string"},"example":{"success":false,"error":"Email already subscribed"}}}},"200":{"description":"Subscription created successfully","content":{"application/json":{"schema":{"type":"string"},"example":{"success":true}}}},"422":{"description":"Validation error in request body","content":{"*/*":{"schema":{"type":"object","additionalProperties":{"type":"object"}}}}}}}},"/notify":{"post":{"tags":["Notification Service"],"summary":"Send notifications to subscribers","description":"Triggers notifications to all subscribers about new plenary protocols. This endpoint processes notifications asynchronously and returns immediately. Typically called by the data fetching service when new protocols are available.","operationId":"notifyUsers","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/NotificationRequest"}}},"required":true},"responses":{"422":{"description":"Validation error in request body","content":{"*/*":{"schema":{"type":"object","additionalProperties":{"type":"object"}}}}},"400":{"description":"Invalid notification request","content":{"*/*":{"schema":{"type":"object","additionalProperties":{"type":"object"}}}}},"202":{"description":"Notification processing started successfully. Notifications will be sent asynchronously.","content":{"*/*":{"schema":{"type":"object","additionalProperties":{"type":"object"}}}}}}}},"/health":{"get":{"tags":["Notification Service"],"summary":"Health check endpoint","description":"Returns the health status of the notification service","operationId":"health","responses":{"200":{"description":"Service is healthy and ready to process notifications","content":{"application/json":{"schema":{"type":"string"}}}}}}},"/unsubscribe":{"delete":{"tags":["Notification Service"],"summary":"Unsubscribe from all notifications","description":"Removes all subscriptions for a given email address. This will stop all notifications for the user.","operationId":"unsubscribe","parameters":[{"name":"email","in":"query","description":"Email address to unsubscribe from all notifications","required":true,"schema":{"type":"string"},"example":"user@example.com"}],"responses":{"200":{"description":"Successfully unsubscribed user","content":{"application/json":{"schema":{"type":"string"},"example":{"success":true}}}},"400":{"description":"Email not found or unsubscribe failed","content":{"application/json":{"schema":{"type":"string"},"example":{"success":false,"error":"Email not found"}}}}}}}},"components":{"schemas":{"SubscriptionRequest":{"required":["email","type"],"type":"object","properties":{"type":{"type":"string"},"email":{"type":"string"},"personId":{"type":"integer","format":"int32"},"party":{"type":"string"}},"description":"Subscription details including email and notification preferences"},"NotificationRequest":{"required":["plenaryProtocolIds"],"type":"object","properties":{"plenaryProtocolIds":{"type":"array","items":{"type":"integer","format":"int32"}}},"description":"Notification request containing the IDs of new plenary protocols"}}}}
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "https://rest-in-peace.student.k8s.aet.cit.tum.de/api/notification",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:8082",
+      "description": "Local development server"
+    },
+    {
+      "url": "http://localhost/api/notification",
+      "description": "Local server with API path"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Notification Service",
+      "description": "INTERNAL API - for managing user subscriptions and sending notifications about new parliamentary protocols"
+    }
+  ],
+  "paths": {
+    "/subscribe": {
+      "post": {
+        "tags": [
+          "Notification Service"
+        ],
+        "summary": "Subscribe to notifications",
+        "description": "Creates a new subscription for a user to receive notifications about new parliamentary protocols. Users can subscribe with their email and specify notification preferences.",
+        "operationId": "subscribe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Invalid subscription request or email already subscribed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Email already subscribed"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Subscription created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "success": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error in request body",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notify": {
+      "post": {
+        "tags": [
+          "Notification Service"
+        ],
+        "summary": "Send notifications to subscribers",
+        "description": "Triggers notifications to all subscribers about new plenary protocols. This endpoint processes notifications asynchronously and returns immediately. Typically called by the data fetching service when new protocols are available.",
+        "operationId": "notifyUsers",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "422": {
+            "description": "Validation error in request body",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid notification request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Notification processing started successfully. Notifications will be sent asynchronously.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Notification Service"
+        ],
+        "summary": "Health check endpoint",
+        "description": "Returns the health status of the notification service",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Service is healthy and ready to process notifications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unsubscribe": {
+      "delete": {
+        "tags": [
+          "Notification Service"
+        ],
+        "summary": "Unsubscribe from all notifications",
+        "description": "Removes all subscriptions for a given email address. This will stop all notifications for the user.",
+        "operationId": "unsubscribe",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Email address to unsubscribe from all notifications",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "user@example.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully unsubscribed user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "success": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email not found or unsubscribe failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Email not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SubscriptionRequest": {
+        "required": [
+          "email",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "personId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "party": {
+            "type": "string"
+          }
+        },
+        "description": "Subscription details including email and notification preferences"
+      },
+      "NotificationRequest": {
+        "required": [
+          "plenaryProtocolIds"
+        ],
+        "type": "object",
+        "properties": {
+          "plenaryProtocolIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        "description": "Notification request containing the IDs of new plenary protocols"
+      }
+    }
+  }
+}

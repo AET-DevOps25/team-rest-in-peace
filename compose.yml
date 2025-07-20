@@ -32,6 +32,8 @@ services:
     image: ghcr.io/aet-devops25/team-rest-in-peace/data-fetching-service:latest
     build: data-fetching-service
     container_name: data-fetching-service
+    ports:
+      - "8080:8080"
     env_file:
       - .env
     expose:
@@ -54,6 +56,8 @@ services:
   browsing-service:
     image: ghcr.io/aet-devops25/team-rest-in-peace/browsing-service:latest
     build: browsing-service
+    ports:
+      - "8081:8081"
     container_name: browsing-service
     env_file:
       - .env
@@ -68,6 +72,8 @@ services:
   notification-service:
     image: ghcr.io/aet-devops25/team-rest-in-peace/notification-service:latest
     build: notification-service
+    ports:
+      - "8082:8082"
     container_name: notification-service
     env_file:
       - .env
