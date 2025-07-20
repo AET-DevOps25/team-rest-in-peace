@@ -43,12 +43,7 @@ const SpeechSearchPage = () => {
   });
 
   useEffect(() => {
-    console.log("Search parameters changed:", {
-      parties,
-      speakerIds,
-      searchText,
-    });
-    fetchSpeeches(0, 1000, false, {
+    fetchSpeeches(0, 10, false, {
       parties: parties || [],
       searchText: searchText || "",
       speakerIds: speakerIds.length > 0 ? speakerIds : [],
