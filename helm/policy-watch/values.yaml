@@ -64,5 +64,5 @@ prometheus:
   port: 9090
 
 grafana:
-  image: "ghcr.io/aet-devops25/team-rest-in-peace/prometheus:latest"
+  image: "ghcr.io/aet-devops25/team-rest-in-peace/grafana:latest"
   port: 9091
