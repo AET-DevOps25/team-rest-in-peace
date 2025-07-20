@@ -33,6 +33,8 @@
    NLP_GENAI_API_KEY (-> Gemini-API-Key)
    BS_DB_PASSWORD
    NS_MAIL_PASSWORD (-> Google App PW)
+   NS_DB_PASSWORD
+   GRAFANA_ADMIN_PASSWORD
    ```
 
 3. **Build and start the services:**
