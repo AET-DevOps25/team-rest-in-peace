@@ -1,6 +1,8 @@
-# Policy Watch - Setup Instructions
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Frest-in-peace.student.k8s.aet.cit.tum.de)](https://rest-in-peace.student.k8s.aet.cit.tum.de)
+[![License](https://img.shields.io/github/license/AET-DevOps25/team-rest-in-peace)](LICENSE)
+[![Open Issues](https://img.shields.io/github/issues/AET-DevOps25/team-rest-in-peace)](https://github.com/AET-DevOps25/team-rest-in-peace/issues)
 
-This document provides instructions for setting up and running the Policy Watch project both locally and on AWS.
+[![Policy Watch - Landing Page Preview](documentation/landing-page-preview.png)](https://rest-in-peace.student.k8s.aet.cit.tum.de)
 
 ## Local Setup
 
@@ -98,20 +100,87 @@ This document provides instructions for setting up and running the Policy Watch 
    echo "${CLIENT_BASE_URL}"
    ```
 
-## Troubleshooting
+## Monitoring
 
-### Local Deployment
+To monitor the system locally:
 
-- If services fail to start, check the Docker logs: `docker compose logs`
-- Ensure all required ports are available on your machine
-- Verify that the `.env` file contains all required variables
+- **Grafana** is available at [http://localhost:9091](http://localhost:9091)  
+- (**Prometheus** is available at [http://localhost:9090](http://localhost:9090))
 
-### AWS Deployment
+### Dashboards
 
-- If Terraform fails, check the error messages and AWS console for more details
-- If Ansible fails, try running with `-vvv` flag for verbose output:
-  ```bash
-  ansible-playbook -vvv --private-key=[SSH_PKEY_PATH] ansible/playbook.yml
-  ```
-- Check EC2 instance security groups to ensure all required ports are open
-- Verify that the SSH key has the correct permissions: `chmod 400 [YOUR_SSH_PKEY]`
+- **SpringBoot RIP Dashboard** – Monitors the three Spring Boot applications  
+- **FastAPI RIP Dashboard** – Monitors the GenAI FastAPI service  
+
+> **Tip:** When testing locally, set the Grafana time window to the **last 5 minutes** for the most relevant metrics.
+
+### Alerts
+
+1. **High CPU Usage (> 80%)** – Triggered when any Spring Boot service exceeds 80% CPU usage.  
+2. **HTTP 5xx Responses** – Triggered when an instance returns a 5xx (server error) HTTP status code.
+
+### Known Limitation
+
+Due to time constraints, we created two separate dashboards instead of consolidating metrics from both systems into a unified view.
+
+
+
+## CI / CD Pipeline Components
+
+[![Build Docker Images](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/build_docker_images.yml/badge.svg)](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/build_docker_images.yml)
+
+**Build Docker Images** - Automatically builds and pushes Docker images for all services to GitHub Container Registry when code is pushed to the main branch.
+
+[![CI for Browsing Service](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/ci_browsing_service.yml/badge.svg)](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/ci_browsing_service.yml)
+
+**CI for Browsing Service** - Runs linting and testing for the Java-based browsing service using Gradle whenever changes are made to the browsing-service directory.
+
+[![CI for Client](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/ci_client.yml/badge.svg)](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/ci_client.yml)
+
+**CI for Client** - Validates the frontend client by running linting and tests using Node.js and npm when client code changes.
+
+[![CI for Data Fetching Service](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/ci_data_fetching_service.yml/badge.svg)](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/ci_data_fetching_service.yml)
+
+**CI for Data Fetching Service** - Performs quality checks and testing for the Java-based data fetching service using Gradle on pull requests.
+
+[![CI for Genai Service](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/ci_genai_service.yml/badge.svg)](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/ci_genai_service.yml)
+
+**CI for Genai Service** - Runs Python code formatting checks with Black and executes tests using pytest for the AI/GenAI service.
+
+[![CI for Notification Service](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/ci_notification_service.yml/badge.svg)](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/ci_notification_service.yml)
+
+**CI for Notification Service** - Validates the Java-based notification service through Gradle linting and testing on code changes.
+
+[![Deploy to AWS](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/deploy_to_aws.yml/badge.svg)](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/deploy_to_aws.yml)
+
+**Deploy to AWS** - Automatically deploys the application to EC2 using Docker Compose, copying configuration files and starting containers on the target instance.
+
+[![Deploy to K8s](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/deploy_to_k8s.yml/badge.svg)](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/deploy_to_k8s.yml)
+
+**Deploy to K8s** - Deploys the application to Kubernetes using Helm charts after successful Docker image builds, managing configuration and secrets injection.
+
+## Diagrams
+
+<figure>
+  <img src="documentation/component-diagram.png" alt="Component Diagram" style="height: 450px;">
+  <figcaption>Component Diagram</figcaption>
+</figure>
+
+<figure>
+  <img src="documentation/use-case-diagram.png" alt="Use Case Diagram" style="height: 450px;">
+  <figcaption>Use Case Diagram</figcaption>
+</figure>
+
+<figure>
+  <img src="documentation/database-diagram.png" alt="Database Diagram" style="height: 450px;">
+  <figcaption>Database Diagram</figcaption>
+</figure>
+
+<figure>
+  <img src="documentation/analysis-object-model.png" alt="Analysis Object Model" style="height: 450px;">
+  <figcaption>Analysis Object Model</figcaption>
+</figure>
+
+
+
+
