@@ -175,6 +175,12 @@ To monitor the system locally:
 - **Grafana** is available at [http://localhost:9091](http://localhost:9091)
 - (**Prometheus** is available at [http://localhost:9090](http://localhost:9090))
 
+To access the grafana dashboard of the k8 cluster run:
+
+```kubectl port-forward service/grafana-service 9091:9091 -n team-rest-in-peace-monitoring```
+
+and then access via [http://localhost:9091](http://localhost:9091)
+
 ### Dashboards
 
 - **SpringBoot RIP Dashboard** – Monitors the three Spring Boot applications
