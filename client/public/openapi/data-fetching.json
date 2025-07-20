@@ -1,1 +1,222 @@
-{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"tags":[{"name":"Data Fetching Service","description":"INTERNAL API - for fetching and storing parliamentary data from the Bundestag API"}],"paths":{"/health":{"get":{"tags":["Data Fetching Service"],"summary":"Health check endpoint","description":"Returns the health status of the data fetching service","operationId":"health","responses":{"200":{"description":"Service is healthy and ready to fetch data","content":{"application/json":{"schema":{"type":"string"}}}}}}},"/fetch":{"get":{"tags":["Data Fetching Service"],"summary":"Fetch parliamentary data from Bundestag API","description":"Fetches parliamentary protocol data from the official Bundestag API with extensive filtering options. Supports date ranges, document types, election periods, and more. Optionally notifies subscribers of new data.","operationId":"triggerDataFetch","parameters":[{"name":"notify","in":"query","description":"Whether to notify subscribers about newly fetched data","required":false,"schema":{"type":"boolean","default":false},"example":true},{"name":"f.aktualisiert.start","in":"query","description":"Filter by update start date (ISO 8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)","required":false,"schema":{"type":"string"},"example":"2024-01-01"},{"name":"f.aktualisiert.end","in":"query","description":"Filter by update end date (ISO 8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)","required":false,"schema":{"type":"string"},"example":"2024-12-31"},{"name":"f.datum.start","in":"query","description":"Filter by document start date (ISO 8601 format: YYYY-MM-DD)","required":false,"schema":{"type":"string"},"example":"2024-01-01"},{"name":"f.datum.end","in":"query","description":"Filter by document end date (ISO 8601 format: YYYY-MM-DD)","required":false,"schema":{"type":"string"},"example":"2024-12-31"},{"name":"f.dokumentnummer","in":"query","description":"Filter by specific document number","required":false,"schema":{"type":"string"},"example":"20/1"},{"name":"f.id","in":"query","description":"Filter by specific document ID","required":false,"schema":{"type":"string"},"example":12345},{"name":"f.vorgangstyp","in":"query","description":"Filter by process type (e.g., 'Plenarprotokoll')","required":false,"schema":{"type":"string"},"example":"Plenarprotokoll"},{"name":"f.vorgangstyp_notation","in":"query","description":"Filter by process type notation/code","required":false,"schema":{"type":"string"},"example":"pp"},{"name":"f.wahlperiode","in":"query","description":"Filter by election period number","required":false,"schema":{"type":"string"},"example":20},{"name":"cursor","in":"query","description":"Pagination cursor for fetching next set of results","required":false,"schema":{"type":"string"},"example":"eyJpZCI6MTIzNDU2fQ=="},{"name":"format","in":"query","description":"Response format from Bundestag API","required":false,"schema":{"type":"string","enum":["json","xml"]},"example":"json"}],"responses":{"500":{"description":"Error occurred while fetching or storing data","content":{"*/*":{"schema":{"type":"object"}}}},"200":{"description":"Data fetching completed successfully. Returns list of successfully processed plenary protocol IDs.","content":{"application/json":{"schema":{"type":"integer","format":"int32"}}}},"400":{"description":"Invalid request parameters or date format","content":{"*/*":{"schema":{"type":"object"}}}}}}}},"components":{}}
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+  {
+    "url": "https://rest-in-peace.student.k8s.aet.cit.tum.de/api/data",
+    "description": "Production server"
+  },
+  {
+    "url": "http://localhost:8082",
+    "description": "Local development server"
+  },
+  {
+    "url": "http://localhost/api/data",
+    "description": "Local server with API path"
+  }
+],
+  "tags": [
+    {
+      "name": "Data Fetching Service",
+      "description": "INTERNAL API - for fetching and storing parliamentary data from the Bundestag API"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Data Fetching Service"
+        ],
+        "summary": "Health check endpoint",
+        "description": "Returns the health status of the data fetching service",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Service is healthy and ready to fetch data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fetch": {
+      "get": {
+        "tags": [
+          "Data Fetching Service"
+        ],
+        "summary": "Fetch parliamentary data from Bundestag API",
+        "description": "Fetches parliamentary protocol data from the official Bundestag API with extensive filtering options. Supports date ranges, document types, election periods, and more. Optionally notifies subscribers of new data.",
+        "operationId": "triggerDataFetch",
+        "parameters": [
+          {
+            "name": "notify",
+            "in": "query",
+            "description": "Whether to notify subscribers about newly fetched data",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "f.aktualisiert.start",
+            "in": "query",
+            "description": "Filter by update start date (ISO 8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2024-01-01"
+          },
+          {
+            "name": "f.aktualisiert.end",
+            "in": "query",
+            "description": "Filter by update end date (ISO 8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2024-12-31"
+          },
+          {
+            "name": "f.datum.start",
+            "in": "query",
+            "description": "Filter by document start date (ISO 8601 format: YYYY-MM-DD)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2024-01-01"
+          },
+          {
+            "name": "f.datum.end",
+            "in": "query",
+            "description": "Filter by document end date (ISO 8601 format: YYYY-MM-DD)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2024-12-31"
+          },
+          {
+            "name": "f.dokumentnummer",
+            "in": "query",
+            "description": "Filter by specific document number",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "20/1"
+          },
+          {
+            "name": "f.id",
+            "in": "query",
+            "description": "Filter by specific document ID",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": 12345
+          },
+          {
+            "name": "f.vorgangstyp",
+            "in": "query",
+            "description": "Filter by process type (e.g., 'Plenarprotokoll')",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Plenarprotokoll"
+          },
+          {
+            "name": "f.vorgangstyp_notation",
+            "in": "query",
+            "description": "Filter by process type notation/code",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "pp"
+          },
+          {
+            "name": "f.wahlperiode",
+            "in": "query",
+            "description": "Filter by election period number",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": 20
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "Pagination cursor for fetching next set of results",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "eyJpZCI6MTIzNDU2fQ=="
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Response format from Bundestag API",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "xml"
+              ]
+            },
+            "example": "json"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Error occurred while fetching or storing data",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Data fetching completed successfully. Returns list of successfully processed plenary protocol IDs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters or date format",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {}
+}
