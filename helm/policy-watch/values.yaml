@@ -48,7 +48,8 @@ notificationService:
   tag: "latest"
   imagePullPolicy: Always
   port: 8082
-  mailProviderApiKey: "your_mail_provider_api_key"
+  mail:
+    password: "mail_password"
   db:
     username: "notification_user"
     password: "notification_password"
