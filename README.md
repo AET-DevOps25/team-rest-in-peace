@@ -36,6 +36,8 @@
    NLP_GENAI_API_KEY (-> Gemini-API-Key)
    BS_DB_PASSWORD
    NS_MAIL_PASSWORD (-> Google App PW)
+   NS_DB_PASSWORD
+   GRAFANA_ADMIN_PASSWORD
    ```
 
 3. **Build and start the services:**
@@ -217,7 +219,7 @@ Due to time constraints, we created two separate dashboards instead of consolida
 
 [![Deploy to AWS](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/deploy_to_aws.yml/badge.svg)](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/deploy_to_aws.yml)
 
-**Deploy to AWS** - Automatically deploys the application to EC2 using Docker Compose, copying configuration files and starting containers on the target instance.
+**Deploy to AWS [DEPRECATED]** - Automatically deploys the application to EC2 using Docker Compose, copying configuration files and starting containers on the target instance. 
 
 [![Deploy to K8s](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/deploy_to_k8s.yml/badge.svg)](https://github.com/AET-DevOps25/team-rest-in-peace/actions/workflows/deploy_to_k8s.yml)
 
@@ -226,7 +228,7 @@ Due to time constraints, we created two separate dashboards instead of consolida
 ## Diagrams
 
 <figure>
-  <img src="documentation/component-diagram.png" alt="Component Diagram" style="height: 450px;">
+  <img src="documentation/compontent-diagram-draft.png" alt="Component Diagram" style="height: 450px;">
   <figcaption>Component Diagram</figcaption>
 </figure>
 
@@ -244,3 +246,13 @@ Due to time constraints, we created two separate dashboards instead of consolida
   <img src="documentation/analysis-object-model.png" alt="Analysis Object Model" style="height: 450px;">
   <figcaption>Analysis Object Model</figcaption>
 </figure>
+
+## Student responsibilities
+
+| **Student** | **Responsibilities**                                                                                                                                                                                                                                                     |
+|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Ramona**  | Developed the client frontend, implemented Kubernetes and Helm charts, managed the browsing service, contributed to the CD pipeline, implemented tests for her components, and co-created the presentation slides.                                                       |
+| **Marc**    | Built the data fetching and notification services, set up Docker Compose, led the AWS deployment using Terraform and Ansible, maintained the CI pipeline, and implemented tests for his components.                                                                      |
+| **Bene**    | Implemented the GenAI service, configured system monitoring with Grafana and Prometheus inclusive helm monitoring setup, created the OpenAPI documentation, implemented tests for his components, and co-created the presentation slides.                                |
+| **All**     | Collaboratively worked on the problem statement, overall project management, diagrams, service interfaces, and testing strategy. While responsibilities were divided, all team members supported each other across components to ensure smooth integration and delivery. |
+

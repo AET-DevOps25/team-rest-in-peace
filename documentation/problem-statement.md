@@ -18,7 +18,7 @@ The app is designed for a wide range of users:
 ### Example Scenarios
 
 1. Lena, a university student in Berlin, wants to follow climate debates in the Bundestag but has no time to watch or read long sessions.  
-   She goes to the website and searches to the keyword _“climate.”_. After that she finds politicians she then follows. 
+   She goes to the website and searches for the keyword _“climate.”_. After that she finds politicians she then follows. 
 
 2. Thomas, a journalist in Hamburg, needs to track what different parties are saying about digitalization.  
    He logs into the website, filters recent speeches by political party and topic, and quickly reads them before his editorial meeting.

@@ -71,6 +71,14 @@
         group: ec2-user
         mode: '0755'
 
+    - name: Copy Grafana provisioning directory
+      copy:
+        src: ../grafana/provisioning/
+        dest: /home/ec2-user/app/grafana/provisioning/
+        owner: ec2-user
+        group: ec2-user
+        mode: '0755'
+
     - name: Copy prometheus.yml file
       copy:
         src: ../prometheus/prometheus.docker.yml
